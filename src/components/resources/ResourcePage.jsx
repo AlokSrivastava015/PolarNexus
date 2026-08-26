@@ -3,6 +3,7 @@ import Icon from "../common/Icon";
 import Brand from "../common/Brand";
 import Sidebar from "../common/Sidebar";
 import BackgroundSlideshow from "../common/BackgroundSlideshow";
+import CollectionModal from "./CollectionModal";
 import {
   nav,
   resourceConfigs,
@@ -27,6 +28,15 @@ export default function ResourcePage({
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [detailRecord, setDetailRecord] = useState(null);
   const [detailTab, setDetailTab] = useState("Overview");
+  const [showCollections, setShowCollections] = useState(false);
+  const [showCollectionModal, setShowCollectionModal] = useState(false);
+  const [collections, setCollections] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("polarnexus-collections") || "[]");
+    } catch {
+      return [];
+    }
+  });
   const isResearchPapers = section === "Polar Research Repository";
   const isCompactFilterPage = [
     "Polar Research Repository",
@@ -103,6 +113,17 @@ export default function ResourcePage({
   };
   const toggleRecord = (title) => setSelectedRecords((current) => current.includes(title) ? current.filter((item) => item !== title) : [...current, title]);
   const openDetail = (record) => { setDetailRecord(record); setDetailTab("Overview"); };
+  const saveCollection = (collection) => {
+    setCollections((current) => {
+      const next = [collection, ...current];
+      localStorage.setItem("polarnexus-collections", JSON.stringify(next));
+      return next;
+    });
+    setShowCollectionModal(false);
+    setSelectedRecords([]);
+    setShowCollections(true);
+    setNotice(`${collection.name} saved with ${collection.resourceTitles.length} resource${collection.resourceTitles.length === 1 ? "" : "s"}.`);
+  };
 
   return (
     <div className={`dashboard resource-page ${isCompactFilterPage ? 'compact-filter-page' : ''} ${section === 'Outreach & Media' ? 'outreach-page' : section === 'Citizen Science' ? 'citizen-page' : ''}`}>
@@ -174,14 +195,23 @@ export default function ResourcePage({
               {config.tabs.map((label) => (
                 <button
                   className={tab === label ? "active" : ""}
-                  onClick={() => setTab(label)}
+                  onClick={() => {
+                    setTab(label);
+                    setShowCollections(false);
+                  }}
                   key={label}
                 >
                   {label}
                 </button>
               ))}
+              <button
+                className={showCollections ? "active" : ""}
+                onClick={() => setShowCollections(true)}
+              >
+                All Collections
+              </button>
               <div className="resource-tab-actions">
-                <button onClick={() => setNotice(`Collection created with ${selectedRecords.length || sortedRecords.length} resource${(selectedRecords.length || sortedRecords.length) === 1 ? '' : 's'}.`)}>Create Collection</button>
+                <button onClick={() => setShowCollectionModal(true)}>Create Collection</button>
                 <button onClick={() => setNotice(`${selectedRecords.length || sortedRecords.length} resource${(selectedRecords.length || sortedRecords.length) === 1 ? '' : 's'} prepared for download.`)}>Download Selected</button>
               </div>
             </div>
@@ -201,7 +231,27 @@ export default function ResourcePage({
                 {isCompactFilterPage && <button className="filters-trigger" onClick={() => setShowFilters((value) => !value)}><Icon name="filter" size={14} /> Filters</button>}
               </div>
             </div>
-            <div className="resource-results-list">
+            {showCollections ? (
+              <div className="collections-list">
+                {collections.length ? collections.map((collection) => (
+                  <article className="collection-list-card" key={collection.id}>
+                    <div className="collection-list-icon"><Icon name="bookmark" size={22} /></div>
+                    <div>
+                      <h3>{collection.name}</h3>
+                      <p>{collection.details || "No collection details added."}</p>
+                      <small>{collection.resourceTitles.length} resource{collection.resourceTitles.length === 1 ? "" : "s"}</small>
+                    </div>
+                  </article>
+                )) : (
+                  <div className="empty-collections-state">
+                    <Icon name="bookmark" size={30} />
+                    <h3>No collections yet</h3>
+                    <p>Create a collection to keep related research resources together.</p>
+                    <button className="btn-primary" onClick={() => setShowCollectionModal(true)}>Create Collection</button>
+                  </div>
+                )}
+              </div>
+            ) : <div className="resource-results-list">
             {sortedRecords.map((record) => (
               <article
                 className={`resource-row ${section === "Photos / Videos" || section === "Outreach & Media" || section === "Citizen Science" ? "media-row" : ""}`}
@@ -242,7 +292,7 @@ export default function ResourcePage({
                 </button>
               </article>
             ))}
-            </div>
+            </div>}
           </div>
           <aside className={`filter-panel ${isCompactFilterPage ? 'repository-filter-panel' : ''} ${showFilters ? 'filter-open' : ''}`}>
             <div className="filter-title">
@@ -282,6 +332,13 @@ export default function ResourcePage({
           <div className="detail-header"><div><h1>{detailRecord.title} <em>{detailRecord.type}</em></h1><dl><div><dt>Authors</dt><dd>PolarNexus Research Team</dd></div><div><dt>Published</dt><dd>{detailRecord.date}</dd></div><div><dt>Keywords</dt><dd>{section}, Antarctica, Climate Research, Polar Science</dd></div></dl><div className="detail-primary-actions"><button onClick={() => setNotice(`${detailRecord.title} download started.`)}><Icon name="download" size={18}/> View / Download</button><button onClick={() => setNotice(`${detailRecord.title} added to your library.`)}>Add to Library</button></div></div><div className="detail-image visual-thumb"><Icon name="image" size={38}/></div></div>
           <div className="detail-body"><main><div className="detail-tabs">{["Overview","Details","Citations","Related Papers","Media"].map(item => <button className={detailTab === item ? 'active' : ''} onClick={() => setDetailTab(item)} key={item}>{item}</button>)}</div>{detailTab === 'Overview' ? <><article className="detail-card"><h2>Abstract</h2><p>This {detailRecord.type.toLowerCase()} presents polar research evidence from field observations, satellite records and long-term scientific monitoring. It highlights meaningful environmental change and supports future research decisions across the Antarctic region.</p><button onClick={() => setNotice('Full abstract opened.')}>Show More</button></article><article className="detail-card"><h2>Key Findings <small>(AI Extracted)</small></h2><ul><li>Observed polar conditions show significant change across the study period.</li><li>Antarctic ecosystems and field operations benefit from continued monitoring.</li><li>Long-term evidence supports informed climate and conservation planning.</li></ul></article></> : <article className="detail-card"><h2>{detailTab}</h2><p>Related information for <b>{detailRecord.title}</b> is available in this record. Use the AI actions to generate additional research outputs.</p></article>}</main><aside className="detail-ai-actions"><h2>AI Actions</h2>{[["spark","Summarize"],["message","Chat with Paper"],["file","Generate Blog"],["megaphone","Generate News"],["users","Generate LinkedIn Post"],["globe","Translate"]].map(([icon,label]) => <button onClick={() => setNotice(`${label} generated for ${detailRecord.title}.`)} key={label}><Icon name={icon} size={20}/><span>{label}</span><Icon name="arrow" size={17}/></button>)}</aside></div>
         </div></div>}
+      <CollectionModal
+        isOpen={showCollectionModal}
+        records={records}
+        initialSelection={selectedRecords}
+        onClose={() => setShowCollectionModal(false)}
+        onSave={saveCollection}
+      />
     </div>
   );
 }
