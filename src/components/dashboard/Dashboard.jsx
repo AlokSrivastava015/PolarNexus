@@ -138,7 +138,7 @@ export default function Home({ username, onLogout, onNavigate }) {
                   )
                 }
               >
-                ✦ &nbsp; AI Semantic Search
+                &nbsp; AI Semantic Search
               </button>
             </div>
           </div>
@@ -224,25 +224,7 @@ export default function Home({ username, onLogout, onNavigate }) {
               </button>
             ))}
           </article>
-          <article className="dash-card actions">
-            <header>
-              <h2>Quick Actions</h2>
-            </header>
-            {[
-              ["search", "AI Semantic Search"],
-              ["message", "RAG-based Assistant"],
-              ["spark", "AI Summarization"],
-              ["spark", "Content Generation"],
-              ["megaphone", "Outreach Portal"],
-              ["users", "Citizen Science Hub"],
-            ].map(([i, l]) => (
-              <button onClick={() => choose(l)} key={l}>
-                <Icon name={i} size={17} />
-                <span>{l}</span>
-                <Icon name="arrow" size={16} />
-              </button>
-            ))}
-          </article>
+
         </section>
         <section className="platform-services" aria-labelledby="services-title">
           <div className="platform-heading">
@@ -267,8 +249,8 @@ export default function Home({ username, onLogout, onNavigate }) {
               ],
               [
                 "chart",
-                "Digital twin intelligence",
-                "Monitor station data, assets and operational signals in real time.",
+                "Photos & Videos",
+                "PolarNexus hosts an archive of expedition and research photographs and videos.",
               ],
               [
                 "users",
@@ -288,20 +270,6 @@ export default function Home({ username, onLogout, onNavigate }) {
               </article>
             ))}
           </div>
-        </section>
-        <section className="feature-banner">
-          <div>
-            <span>✦</span>
-            <p>One connected polar ecosystem</p>
-            <h2>Move from raw data to confident decisions.</h2>
-            <p className="feature-copy">
-              PolarNexus brings AI-assisted discovery, collaboration and
-              Antarctic station awareness into a single secure platform.
-            </p>
-          </div>
-          <button onClick={() => choose("Polar Research Repository")}>
-            Explore the platform <Icon name="arrow" size={19} />
-          </button>
         </section>
         <footer className="dashboard-footer">
           <div>
