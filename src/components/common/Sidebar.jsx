@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import Icon from "./Icon";
-import Brand from "./Brand";
 import { useTheme } from "./ThemeContext";
-import SettingsModal from "./SettingsModal";
 import AddAccountModal from "./AddAccountModal";
 
 export default function Sidebar({
@@ -14,7 +12,6 @@ export default function Sidebar({
   onSwitchUser,
 }) {
   const { themeMode, setThemeMode } = useTheme();
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false);
   const [openSettingsDrawer, setOpenSettingsDrawer] = useState(false);
 
@@ -31,15 +28,12 @@ export default function Sidebar({
 
   const handleSettingsClick = () => {
     setOpenSettingsDrawer((prev) => !prev);
-    setIsSettingsModalOpen(true);
   };
 
   return (
     <>
-      <aside className={`floating-sidebar ${isOpen ? "sidebar-open" : ""}`}>
-        {/* Compact Logo & Header */}
+      <aside className={`floating-sidebar sidebar-hover ${isOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-head">
-          <Brand compact />
           <button className="close-nav" onClick={onClose} aria-label="Close Navigation">
             <Icon name="x" size={20} />
           </button>
@@ -239,14 +233,6 @@ export default function Sidebar({
           </div>
         </nav>
       </aside>
-
-      {/* Settings Modal */}
-      <SettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-        onOpenAddAccount={() => setIsAddAccountModalOpen(true)}
-        onLogout={onLogout}
-      />
 
       {/* Add Account Modal */}
       <AddAccountModal

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import Icon from "../common/Icon";
 import Brand from "../common/Brand";
+import Sidebar from "../common/Sidebar";
 import BackgroundSlideshow from "../common/BackgroundSlideshow";
 import {
   nav,
@@ -28,7 +29,6 @@ const quickActions = [
 export default function Home({ username, onLogout, onNavigate }) {
   const [active, setActive] = useState("Home");
   const [open, setOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -64,40 +64,10 @@ export default function Home({ username, onLogout, onNavigate }) {
 
   return (
     <div className="dashboard">
-      <aside className={`sidebar ${open ? "sidebar-open" : ""} ${collapsed ? "sidebar-collapsed" : ""}`}>
-        <button className="sidebar-toggle" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
-          <Icon name="chevronLeft" size={18} />
-        </button>
-        <div className="sidebar-head">
-          <Brand compact />
-          <button className="close-nav" onClick={() => setOpen(false)}>
-            <Icon name="x" />
-          </button>
-        </div>
-        <nav>
-          {nav.map(([i, name], n) => (
-            <button
-              key={name}
-              className={`${active === name ? "selected" : ""} ${n === 6 ? "nav-break" : ""}`}
-              onClick={() => choose(name)}
-            >
-              <Icon name={i} size={19} />
-              <span>{name}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="ai-card">
-          <div>
-            <Icon name="snow" size={27} />
-          </div>
-          <p>
-            <b>PolarNexus AI</b>
-            <span>Empowering research with intelligence & knowledge.</span>
-          </p>
-        </div>
-      </aside>
+      <Sidebar activeSection={active} onNavigate={choose} onLogout={onLogout} isOpen={open} onClose={() => setOpen(false)} />
       <div className="dash-main">
         <header className="topbar">
+          <div className="navbar-brand"><Brand compact /></div>
           <button className="menu-button" onClick={() => setOpen(true)}>
             <Icon name="menu" />
           </button>

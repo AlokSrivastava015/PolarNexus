@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Icon from "../common/Icon";
 import Brand from "../common/Brand";
+import Sidebar from "../common/Sidebar";
 import AiSemanticSearchSection from "./AiSemanticSearchSection";
 import RagAssistantSection from "./RagAssistantSection";
 import AiSummarizationSection from "./AiSummarizationSection";
@@ -14,7 +15,6 @@ export default function AiToolPage({
   onNavigate,
 }) {
   const [open, setOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
   const [notice, setNotice] = useState("");
 
   const select = (name) => {
@@ -26,44 +26,11 @@ export default function AiToolPage({
 
   return (
     <div className="dashboard ai-tool-page">
-      <aside className={`sidebar ${open ? "sidebar-open" : ""} ${collapsed ? "sidebar-collapsed" : ""}`}>
-        <button className="sidebar-toggle" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
-          <Icon name="chevronLeft" size={18} />
-        </button>
-        <div className="sidebar-head">
-          <Brand compact />
-          <button className="close-nav" onClick={() => setOpen(false)}>
-            <Icon name="x" />
-          </button>
-        </div>
-        <nav>
-          {nav.map(([icon, name], index) => (
-            <button
-              key={name}
-              onClick={() => select(name)}
-              className={`${name === section ? "selected" : ""} ${index === 6 ? "nav-break" : ""}`}
-            >
-              <Icon name={icon} size={19} />
-              <span>{name}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="ai-card">
-          <div>
-            <Icon name="snow" size={27} />
-          </div>
-          <p>
-            <b>Polar AI Assistant</b>
-            <span>Your AI research companion for polar insights.</span>
-          </p>
-          <button className="ai-card-btn" onClick={() => select("RAG-based Assistant")}>
-            Ask Assistant <Icon name="arrow" size={14} />
-          </button>
-        </div>
-      </aside>
+      <Sidebar activeSection={section} onNavigate={select} onLogout={onLogout} isOpen={open} onClose={() => setOpen(false)} />
 
       <div className="dash-main">
         <header className="topbar">
+          <div className="navbar-brand"><Brand compact /></div>
           <button className="menu-button" onClick={() => setOpen(true)}>
             <Icon name="menu" />
           </button>
