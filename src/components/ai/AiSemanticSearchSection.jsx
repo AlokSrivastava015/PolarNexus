@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Icon from "../common/Icon";
+import BackgroundSlideshow from "../common/BackgroundSlideshow";
 
 export default function AiSemanticSearchSection({ setNotice }) {
   const [query, setQuery] = useState(
@@ -81,6 +82,7 @@ export default function AiSemanticSearchSection({ setNotice }) {
   return (
     <div className="semantic-page-view">
       <section className="semantic-hero">
+        <BackgroundSlideshow className="semantic-hero-slideshow" />
         <div className="hero-head-title">
           <h1>
             AI Semantic Search <span className="blue-sparkle">✦</span>

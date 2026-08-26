@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import Icon from "../common/Icon";
 import Brand from "../common/Brand";
+import BackgroundSlideshow from "../common/BackgroundSlideshow";
 import {
   nav,
   expeditions,
@@ -105,6 +106,7 @@ export default function Home({ username, onLogout, onNavigate }) {
           </div>
         )}
         <section className="dash-hero">
+          <BackgroundSlideshow className="dash-hero-slideshow" />
           <div>
             <p>Welcome to</p>
             <h1>

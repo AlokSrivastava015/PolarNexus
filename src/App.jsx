@@ -21,36 +21,36 @@ export default function App() {
       {loading && <Preloader />}
       {user ? (
         section === "Home" ? (
-          <Home
-            username={user}
-            onLogout={() => {
-              setUser(null);
-              setSection("Home");
-            }}
-            onNavigate={setSection}
-          />
+            <Home
+              username={user}
+              onLogout={() => {
+                setUser(null);
+                setSection("Home");
+              }}
+              onNavigate={setSection}
+            />
         ) : aiSections.includes(section) ? (
-          <AiToolPage
-            section={section}
-            username={user}
-            onHome={() => setSection("Home")}
-            onLogout={() => {
-              setUser(null);
-              setSection("Home");
-            }}
-            onNavigate={setSection}
-          />
+            <AiToolPage
+              section={section}
+              username={user}
+              onHome={() => setSection("Home")}
+              onLogout={() => {
+                setUser(null);
+                setSection("Home");
+              }}
+              onNavigate={setSection}
+            />
         ) : (
-          <ResourcePage
-            section={section}
-            username={user}
-            onHome={() => setSection("Home")}
-            onLogout={() => {
-              setUser(null);
-              setSection("Home");
-            }}
-            onNavigate={setSection}
-          />
+            <ResourcePage
+              section={section}
+              username={user}
+              onHome={() => setSection("Home")}
+              onLogout={() => {
+                setUser(null);
+                setSection("Home");
+              }}
+              onNavigate={setSection}
+            />
         )
       ) : (
         <Login

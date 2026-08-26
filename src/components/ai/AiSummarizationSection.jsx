@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Icon from "../common/Icon";
+import BackgroundSlideshow from "../common/BackgroundSlideshow";
 
 export default function AiSummarizationSection({ setNotice }) {
   const [urlInput, setUrlInput] = useState("https://example.com/research-report");
@@ -77,6 +78,7 @@ export default function AiSummarizationSection({ setNotice }) {
   return (
     <div className="summarization-page-view">
       <section className="summary-hero">
+        <BackgroundSlideshow className="summary-hero-slideshow" />
         <div className="summary-hero-head">
           <h1>
             AI Summarization <span className="blue-sparkle">✦</span>

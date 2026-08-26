@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import Icon from "../common/Icon";
 import Brand from "../common/Brand";
+import BackgroundSlideshow from "../common/BackgroundSlideshow";
 import {
   nav,
   resourceConfigs,
@@ -139,6 +140,7 @@ export default function ResourcePage({
           </div>
         )}
         <section className="resource-hero">
+          <BackgroundSlideshow className="resource-hero-background" />
           <div>
             <h1>{section}</h1>
             <p>{config.subtitle}</p>

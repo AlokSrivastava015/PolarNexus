@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Icon from "../common/Icon";
+import BackgroundSlideshow from "../common/BackgroundSlideshow";
 
 export default function RagAssistantSection({ setNotice }) {
   const [prompt, setPrompt] = useState(
@@ -27,6 +28,7 @@ export default function RagAssistantSection({ setNotice }) {
   return (
     <div className="rag-page-view">
       <section className="rag-hero">
+        <BackgroundSlideshow className="rag-hero-slideshow" />
         <div className="rag-hero-content">
           <h1>
             RAG Research Assistant <span className="blue-sparkle">✦</span>
