@@ -364,6 +364,25 @@
 
 /* Rotating imagery is limited to the resource-page hero. */
 .dashboard{background:#eaf4ff}
+
+/* Sidebar collapse / expand */
+@media(min-width:801px){
+  .sidebar{position:relative;width:220px;flex:0 0 220px;transition:width .28s ease,flex-basis .28s ease,padding .28s ease;overflow:visible}
+  .sidebar-toggle{position:absolute;z-index:8;top:100px;right:-14px;display:grid;place-items:center;width:28px;height:28px;padding:0;border:1px solid #c9ddf4;border-radius:50%;background:#fff;color:#145dc7;box-shadow:0 4px 12px #376eaa35;cursor:pointer;transition:transform .28s ease,background .2s ease}
+  .sidebar-toggle:hover{background:#eaf4ff}
+  .sidebar-collapsed{width:60px;flex-basis:60px;padding-left:7px;padding-right:7px}
+  .sidebar-collapsed .sidebar-toggle{transform:rotate(180deg)}
+  .sidebar-collapsed .sidebar-head{justify-content:center}
+  .sidebar-collapsed .sidebar-head>div>div:last-child,.sidebar-collapsed nav span,.sidebar-collapsed .ai-card p,.sidebar-collapsed .ai-card-btn{display:none}
+  .sidebar-collapsed .dashboard-brand{justify-content:center;margin-bottom:31px}
+  .sidebar-collapsed .sidebar-nav .section-header{justify-content:center;padding-left:0;padding-right:0;font-size:0}
+  .sidebar-collapsed .sidebar-nav .submenu-item,.sidebar-collapsed .sidebar-nav .nav-item,.sidebar-collapsed nav>button{justify-content:center;padding-left:0;padding-right:0;gap:0}
+  .sidebar-collapsed .sidebar-nav .submenu-list{padding-left:0}
+  .sidebar-collapsed .ai-card{justify-content:center;padding:10px 0;background:transparent;border:0}
+  .sidebar-collapsed .ai-card>div{width:38px;height:38px}
+  .sidebar-collapsed .close-nav{display:none}
+}
+@media(max-width:800px){.sidebar-toggle{display:none}}
 .resource-hero{position:relative;isolation:isolate}
 .resource-hero-background{position:absolute;inset:0;z-index:0;background:center/cover no-repeat;animation:backgroundFade .8s ease both}
 .resource-hero::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,#f7fdffec,#eaf7ffb5 49%,#b7ddfb44)}

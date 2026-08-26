@@ -28,6 +28,7 @@ const quickActions = [
 export default function Home({ username, onLogout, onNavigate }) {
   const [active, setActive] = useState("Home");
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -63,7 +64,10 @@ export default function Home({ username, onLogout, onNavigate }) {
 
   return (
     <div className="dashboard">
-      <aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
+      <aside className={`sidebar ${open ? "sidebar-open" : ""} ${collapsed ? "sidebar-collapsed" : ""}`}>
+        <button className="sidebar-toggle" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
+          <Icon name="chevronLeft" size={18} />
+        </button>
         <div className="sidebar-head">
           <Brand compact />
           <button className="close-nav" onClick={() => setOpen(false)}>

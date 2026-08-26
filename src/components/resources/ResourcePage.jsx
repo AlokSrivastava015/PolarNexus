@@ -20,6 +20,7 @@ export default function ResourcePage({
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState(config.tabs[0]);
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [notice, setNotice] = useState("");
 
   const records = useMemo(
@@ -81,7 +82,10 @@ export default function ResourcePage({
 
   return (
     <div className={`dashboard resource-page ${section === 'Outreach & Media' ? 'outreach-page' : section === 'Citizen Science' ? 'citizen-page' : ''}`}>
-      <aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
+      <aside className={`sidebar ${open ? "sidebar-open" : ""} ${collapsed ? "sidebar-collapsed" : ""}`}>
+        <button className="sidebar-toggle" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
+          <Icon name="chevronLeft" size={18} />
+        </button>
         <div className="sidebar-head">
           <Brand compact />
           <button className="close-nav" onClick={() => setOpen(false)}>

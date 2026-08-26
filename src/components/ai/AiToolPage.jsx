@@ -14,6 +14,7 @@ export default function AiToolPage({
   onNavigate,
 }) {
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [notice, setNotice] = useState("");
 
   const select = (name) => {
@@ -25,7 +26,10 @@ export default function AiToolPage({
 
   return (
     <div className="dashboard ai-tool-page">
-      <aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
+      <aside className={`sidebar ${open ? "sidebar-open" : ""} ${collapsed ? "sidebar-collapsed" : ""}`}>
+        <button className="sidebar-toggle" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
+          <Icon name="chevronLeft" size={18} />
+        </button>
         <div className="sidebar-head">
           <Brand compact />
           <button className="close-nav" onClick={() => setOpen(false)}>
