@@ -1,0 +1,324 @@
+import React, { useState, useMemo } from "react";
+import Icon from "../common/Icon";
+import Brand from "../common/Brand";
+import {
+  nav,
+  expeditions,
+  publications,
+  aiSections,
+} from "../../data/mockData";
+
+export default function Dashboard({ username, onLogout, onNavigate }) {
+  const [active, setActive] = useState("Dashboard");
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [notice, setNotice] = useState("");
+
+  const matches = useMemo(
+    () =>
+      [...expeditions, ...publications].filter((x) =>
+        x.join(" ").toLowerCase().includes(query.toLowerCase()),
+      ).length,
+    [query],
+  );
+
+  const choose = (name) => {
+    setActive(name);
+    setOpen(false);
+    if (
+      [
+        "Polar Research Repository",
+        "Expedition Reports",
+        "Scientific Datasets",
+        "Publications",
+        "Photos / Videos",
+        "Outreach & Media",
+        "Citizen Science",
+        ...aiSections,
+      ].includes(name)
+    ) {
+      onNavigate(name);
+      return;
+    }
+    if (name !== "Dashboard")
+      setNotice(`${name} selected — module ready to explore.`);
+  };
+
+  return (
+    <div className="dashboard">
+      <aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
+        <div className="sidebar-head">
+          <Brand compact />
+          <button className="close-nav" onClick={() => setOpen(false)}>
+            <Icon name="x" />
+          </button>
+        </div>
+        <nav>
+          {nav.map(([i, name], n) => (
+            <button
+              key={name}
+              className={`${active === name ? "selected" : ""} ${n === 6 ? "nav-break" : ""}`}
+              onClick={() => choose(name)}
+            >
+              <Icon name={i} size={19} />
+              <span>{name}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="ai-card">
+          <div>
+            <Icon name="snow" size={27} />
+          </div>
+          <p>
+            <b>PolarNexus AI</b>
+            <span>Empowering research with intelligence & knowledge.</span>
+          </p>
+        </div>
+      </aside>
+      <div className="dash-main">
+        <header className="topbar">
+          <button className="menu-button" onClick={() => setOpen(true)}>
+            <Icon name="menu" />
+          </button>
+          <div className="top-search">
+            <Icon name="search" size={20} />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search across repository..."
+            />
+            <kbd>⌘ K</kbd>
+          </div>
+          <div className="user-area">
+            <Icon name="user" size={20} />
+            <span>Welcome, {username}</span>
+            <button onClick={onLogout}>
+              <Icon name="logout" size={20} />
+              Logout
+            </button>
+          </div>
+        </header>
+        {notice && (
+          <div className="notice">
+            {notice}
+            <button onClick={() => setNotice("")}>×</button>
+          </div>
+        )}
+        <section className="dash-hero">
+          <div>
+            <p>Welcome to</p>
+            <h1>
+              AI-Powered <span>Polar Knowledge,</span>
+              <br />
+              Outreach & <span>Digital Twin</span> Platform
+            </h1>
+            <p className="hero-sub">
+              Uniting polar research, real-time insights and intelligent
+              monitoring
+              <br />
+              to advance science, operations and collaboration in the world's
+              <br />
+              final frontier.
+            </p>
+            <div className="hero-search">
+              <Icon name="search" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search research, reports, datasets, publications..."
+              />
+              <button
+                onClick={() =>
+                  setNotice(
+                    query
+                      ? `${matches} related result${matches === 1 ? "" : "s"} found.`
+                      : "Search the PolarNexus repository.",
+                  )
+                }
+              >
+                ✦ &nbsp; AI Semantic Search
+              </button>
+            </div>
+          </div>
+        </section>
+        <section className="overview">
+          <div className="section-title">
+            <h2>Overview</h2>
+            <button>
+              <Icon name="calendar" size={16} />
+              This Month⌄
+            </button>
+          </div>
+          <div className="metrics">
+            {[
+              ["file", "1,248", "Research Papers", "12%"],
+              ["flag", "86", "Expedition Reports", "8%"],
+              ["database", "542", "Scientific Datasets", "18%"],
+              ["image", "3,287", "Photos / Videos", "15%"],
+              ["users", "1,032", "Citizen Scientists", "10%"],
+            ].map(([i, v, l, g]) => (
+              <article key={l}>
+                <div className={`metric-icon ${i}`}>
+                  <Icon name={i} />
+                </div>
+                <div>
+                  <b>{v}</b>
+                  <span>{l}</span>
+                  <small>↑ {g} from last month</small>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section className="dash-grids">
+          <article className="dash-card expeditions">
+            <header>
+              <h2>Recent Expeditions</h2>
+              <button onClick={() => choose("Expedition Reports")}>
+                View All
+              </button>
+            </header>
+            {expeditions.map(([t, d, f, r], i) => (
+              <button
+                className="expedition-row"
+                onClick={() => setNotice(`${t} opened.`)}
+                key={t}
+              >
+                <div className={`thumb thumb-${i}`}>
+                  <Icon name="mountain" size={23} />
+                </div>
+                <span>
+                  <b>{t}</b>
+                  <small>
+                    {d}
+                    <i /> {f}
+                  </small>
+                </span>
+                <em>{r}</em>
+                <Icon name="arrow" size={17} />
+              </button>
+            ))}
+          </article>
+          <article className="dash-card publications">
+            <header>
+              <h2>Latest Publications</h2>
+              <button onClick={() => choose("Publications")}>View All</button>
+            </header>
+            {publications.map(([t, j, d]) => (
+              <button
+                className="publication-row"
+                onClick={() => setNotice(`${t} opened.`)}
+                key={t}
+              >
+                <Icon name="file" size={20} />
+                <span>
+                  <b>{t}</b>
+                  <small>
+                    {j}
+                    <i /> {d}
+                  </small>
+                </span>
+                <Icon name="download" size={19} />
+              </button>
+            ))}
+          </article>
+          <article className="dash-card actions">
+            <header>
+              <h2>Quick Actions</h2>
+            </header>
+            {[
+              ["search", "AI Semantic Search"],
+              ["message", "RAG-based Assistant"],
+              ["spark", "AI Summarization"],
+              ["spark", "Content Generation"],
+              ["megaphone", "Outreach Portal"],
+              ["users", "Citizen Science Hub"],
+            ].map(([i, l]) => (
+              <button onClick={() => choose(l)} key={l}>
+                <Icon name={i} size={17} />
+                <span>{l}</span>
+                <Icon name="arrow" size={16} />
+              </button>
+            ))}
+          </article>
+        </section>
+        <section className="platform-services" aria-labelledby="services-title">
+          <div className="platform-heading">
+            <p>PolarNexus platform</p>
+            <h2 id="services-title">Services built for every polar mission</h2>
+            <span>
+              From first discovery to field operations, bring knowledge, data
+              and people into one connected workspace.
+            </span>
+          </div>
+          <div className="service-grid">
+            {[
+              [
+                "book",
+                "Research repository",
+                "Find reports, publications, media and institutional knowledge in one place.",
+              ],
+              [
+                "spark",
+                "AI research tools",
+                "Search, summarize and understand complex polar research faster.",
+              ],
+              [
+                "chart",
+                "Digital twin intelligence",
+                "Monitor station data, assets and operational signals in real time.",
+              ],
+              [
+                "users",
+                "Outreach & citizen science",
+                "Turn research into useful stories and meaningful public participation.",
+              ],
+            ].map(([icon, title, text]) => (
+              <article key={title}>
+                <div>
+                  <Icon name={icon} size={24} />
+                </div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+                <button onClick={() => choose(title)}>
+                  Explore <Icon name="arrow" size={16} />
+                </button>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section className="feature-banner">
+          <div>
+            <span>✦</span>
+            <p>One connected polar ecosystem</p>
+            <h2>Move from raw data to confident decisions.</h2>
+            <p className="feature-copy">
+              PolarNexus brings AI-assisted discovery, collaboration and
+              Antarctic station awareness into a single secure platform.
+            </p>
+          </div>
+          <button onClick={() => choose("Polar Research Repository")}>
+            Explore the platform <Icon name="arrow" size={19} />
+          </button>
+        </section>
+        <footer className="dashboard-footer">
+          <div>
+            <Brand compact />
+            <p>Connecting knowledge. Advancing polar futures.</p>
+          </div>
+          <div className="footer-links">
+            <a href="#services-title">Services</a>
+            <button onClick={() => choose("AI Semantic Search")}>
+              AI Search
+            </button>
+            <button onClick={() => choose("Outreach")}>Outreach</button>
+            <a href="mailto:hello@polarnexus.org">Contact</a>
+          </div>
+          <small>
+            © 2026 PolarNexus. Built for polar research and discovery.
+          </small>
+        </footer>
+      </div>
+    </div>
+  );
+}
