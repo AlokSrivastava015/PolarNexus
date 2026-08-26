@@ -9,6 +9,22 @@ import {
   aiSections,
 } from "../../data/mockData";
 
+const trendingTopics = [
+  ["snow", "Ice Shelf Stability", "124 papers"],
+  ["users", "Ozone Depletion", "96 papers"],
+  ["globe", "Climate Change", "356 papers"],
+  ["database", "Ocean Warming", "112 papers"],
+  ["chart", "Polar Biodiversity", "78 papers"],
+];
+
+const quickActions = [
+  ["user", "Ask AI Assistant", "Get answers from polar knowledge", "RAG-based Assistant"],
+  ["file", "Summarize Paper", "Get key insights in seconds", "AI Summarization"],
+  ["spark", "Generate Content", "Blogs, news, posts & more", "Outreach & Media"],
+  ["globe", "Explore Polar Map", "Discover research & projects", "Scientific Datasets"],
+  ["chart", "View Analytics", "Explore research insights", "AI Semantic Search"],
+];
+
 export default function Home({ username, onLogout, onNavigate }) {
   const [active, setActive] = useState("Home");
   const [open, setOpen] = useState(false);
@@ -172,59 +188,25 @@ export default function Home({ username, onLogout, onNavigate }) {
             ))}
           </div>
         </section>
-        <section className="dash-grids">
-          <article className="dash-card expeditions">
-            <header>
-              <h2>Recent Expeditions</h2>
-              <button onClick={() => choose("Expedition Reports")}>
-                View All
-              </button>
-            </header>
-            {expeditions.map(([t, d, f, r], i) => (
-              <button
-                className="expedition-row"
-                onClick={() => setNotice(`${t} opened.`)}
-                key={t}
-              >
-                <div className={`thumb thumb-${i}`}>
-                  <Icon name="mountain" size={23} />
-                </div>
-                <span>
-                  <b>{t}</b>
-                  <small>
-                    {d}
-                    <i /> {f}
-                  </small>
-                </span>
-                <em>{r}</em>
-                <Icon name="arrow" size={17} />
+        <section className="dashboard-discovery">
+          <h2>🔥 Trending Research Topics <small>(AI Generated)</small></h2>
+          <div className="trending-topics">
+            {trendingTopics.map(([icon, title, count]) => (
+              <button key={title} onClick={() => setNotice(`${title} selected.`)}>
+                <span className="topic-icon"><Icon name={icon} size={21} /></span>
+                <span><b>{title}</b><small>{count}</small></span>
               </button>
             ))}
-          </article>
-          <article className="dash-card publications">
-            <header>
-              <h2>Latest Publications</h2>
-              <button onClick={() => choose("Publications")}>View All</button>
-            </header>
-            {publications.map(([t, j, d]) => (
-              <button
-                className="publication-row"
-                onClick={() => setNotice(`${t} opened.`)}
-                key={t}
-              >
-                <Icon name="file" size={20} />
-                <span>
-                  <b>{t}</b>
-                  <small>
-                    {j}
-                    <i /> {d}
-                  </small>
-                </span>
-                <Icon name="download" size={19} />
+          </div>
+          <h2 className="quick-actions-title">Quick Actions</h2>
+          <div className="quick-actions-grid">
+            {quickActions.map(([icon, title, description, destination]) => (
+              <button key={title} onClick={() => choose(destination)}>
+                <span className="quick-icon"><Icon name={icon} size={23} /></span>
+                <span><b>{title}</b><small>{description}</small></span>
               </button>
             ))}
-          </article>
-
+          </div>
         </section>
         <section className="platform-services" aria-labelledby="services-title">
           <div className="platform-heading">
