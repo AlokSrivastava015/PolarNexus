@@ -48,19 +48,8 @@ export default function AiToolPage({
             <kbd>⌘ K</kbd>
           </div>
           <div className="user-area">
-            <div className="user-profile-badge">
-              <div className="avatar-circle">
-                <Icon name="user" size={18} />
-              </div>
-              <div className="user-meta">
-                <b>Dr. Ananya Sen</b>
-                <small>Researcher ⌄</small>
-              </div>
-            </div>
-            <button onClick={onLogout}>
-              <Icon name="logout" size={18} />
-              Logout
-            </button>
+            <Icon name="user" size={20} />
+            <span>Welcome, {username}</span>
           </div>
         </header>
 

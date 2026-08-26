@@ -85,6 +85,27 @@ const Icon = ({ name, size = 24 }) => {
         <path d="m16 16 4 4" />
       </>
     ),
+    edit: (
+      <>
+        <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" />
+        <path d="m13.5 6.5 4 4" />
+      </>
+    ),
+    target: (
+      <>
+        <circle cx="12" cy="12" r="8" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="12" cy="12" r="1" />
+      </>
+    ),
+    network: (
+      <>
+        <circle cx="5" cy="6" r="2" />
+        <circle cx="19" cy="6" r="2" />
+        <circle cx="12" cy="18" r="2" />
+        <path d="m6.7 7.2 3.6 8.1M17.3 7.2l-3.6 8.1M7 6h10" />
+      </>
+    ),
     home: (
       <>
         <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z" />

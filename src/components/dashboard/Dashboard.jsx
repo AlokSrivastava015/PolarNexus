@@ -83,10 +83,6 @@ export default function Home({ username, onLogout, onNavigate }) {
           <div className="user-area">
             <Icon name="user" size={20} />
             <span>Welcome, {username}</span>
-            <button onClick={onLogout}>
-              <Icon name="logout" size={20} />
-              Logout
-            </button>
           </div>
         </header>
         {notice && (

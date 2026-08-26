@@ -58,7 +58,7 @@ export const resourceConfigs = {
     count: "12,840+",
     subtitle:
       "Explore, discover and utilize polar research knowledge from expeditions, datasets, publications and media.",
-    tabs: ["All Resources", "Reports", "Datasets", "Publications", "Media"],
+    tabs: ["All Resources"],
     stats: [
       ["file", "12,840+", "Reports"],
       ["database", "8,420+", "Datasets"],
