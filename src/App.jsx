@@ -178,7 +178,7 @@ const nav = [
   ["message", "RAG-based Assistant"],
   ["spark", "AI Summarization"],
   ["spark", "Content Generation"],
-  ["megaphone", "Outreach"],
+  ["megaphone", "Outreach & Media"],
   ["users", "Citizen Science"],
 ];
 const expeditions = [
@@ -365,7 +365,7 @@ function Login({ onLogin }) {
     </main>
   );
 }
-function Dashboard({ username, onLogout }) {
+function Dashboard({ username, onLogout, onNavigate }) {
   const [active, setActive] = useState("Dashboard"),
     [open, setOpen] = useState(false),
     [query, setQuery] = useState(""),
@@ -380,6 +380,20 @@ function Dashboard({ username, onLogout }) {
   const choose = (name) => {
     setActive(name);
     setOpen(false);
+    if (
+      [
+        "Polar Research Repository",
+        "Expedition Reports",
+        "Scientific Datasets",
+        "Publications",
+        "Photos / Videos",
+        "Outreach & Media",
+        "Citizen Science",
+      ].includes(name)
+    ) {
+      onNavigate(name);
+      return;
+    }
     if (name !== "Dashboard")
       setNotice(`${name} selected — module ready to explore.`);
   };
@@ -585,35 +599,643 @@ function Dashboard({ username, onLogout }) {
           <div className="platform-heading">
             <p>PolarNexus platform</p>
             <h2 id="services-title">Services built for every polar mission</h2>
-            <span>From first discovery to field operations, bring knowledge, data and people into one connected workspace.</span>
+            <span>
+              From first discovery to field operations, bring knowledge, data
+              and people into one connected workspace.
+            </span>
           </div>
           <div className="service-grid">
             {[
-              ['book', 'Research repository', 'Find reports, publications, media and institutional knowledge in one place.'],
-              ['spark', 'AI research tools', 'Search, summarize and understand complex polar research faster.'],
-              ['chart', 'Digital twin intelligence', 'Monitor station data, assets and operational signals in real time.'],
-              ['users', 'Outreach & citizen science', 'Turn research into useful stories and meaningful public participation.'],
-            ].map(([icon, title, text]) => <article key={title}>
-              <div><Icon name={icon} size={24} /></div><h3>{title}</h3><p>{text}</p><button onClick={() => choose(title)}>Explore <Icon name="arrow" size={16}/></button>
-            </article>)}
+              [
+                "book",
+                "Research repository",
+                "Find reports, publications, media and institutional knowledge in one place.",
+              ],
+              [
+                "spark",
+                "AI research tools",
+                "Search, summarize and understand complex polar research faster.",
+              ],
+              [
+                "chart",
+                "Digital twin intelligence",
+                "Monitor station data, assets and operational signals in real time.",
+              ],
+              [
+                "users",
+                "Outreach & citizen science",
+                "Turn research into useful stories and meaningful public participation.",
+              ],
+            ].map(([icon, title, text]) => (
+              <article key={title}>
+                <div>
+                  <Icon name={icon} size={24} />
+                </div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+                <button onClick={() => choose(title)}>
+                  Explore <Icon name="arrow" size={16} />
+                </button>
+              </article>
+            ))}
           </div>
         </section>
         <section className="feature-banner">
-          <div><span>✦</span><p>One connected polar ecosystem</p><h2>Move from raw data to confident decisions.</h2><p className="feature-copy">PolarNexus brings AI-assisted discovery, collaboration and Antarctic station awareness into a single secure platform.</p></div>
-          <button onClick={() => choose('Polar Research Repository')}>Explore the platform <Icon name="arrow" size={19}/></button>
+          <div>
+            <span>✦</span>
+            <p>One connected polar ecosystem</p>
+            <h2>Move from raw data to confident decisions.</h2>
+            <p className="feature-copy">
+              PolarNexus brings AI-assisted discovery, collaboration and
+              Antarctic station awareness into a single secure platform.
+            </p>
+          </div>
+          <button onClick={() => choose("Polar Research Repository")}>
+            Explore the platform <Icon name="arrow" size={19} />
+          </button>
         </section>
         <footer className="dashboard-footer">
-          <div><Brand compact/><p>Connecting knowledge. Advancing polar futures.</p></div>
-          <div className="footer-links"><a href="#services-title">Services</a><button onClick={() => choose('AI Semantic Search')}>AI Search</button><button onClick={() => choose('Outreach')}>Outreach</button><a href="mailto:hello@polarnexus.org">Contact</a></div>
-          <small>© 2026 PolarNexus. Built for polar research and discovery.</small>
+          <div>
+            <Brand compact />
+            <p>Connecting knowledge. Advancing polar futures.</p>
+          </div>
+          <div className="footer-links">
+            <a href="#services-title">Services</a>
+            <button onClick={() => choose("AI Semantic Search")}>
+              AI Search
+            </button>
+            <button onClick={() => choose("Outreach")}>Outreach</button>
+            <a href="mailto:hello@polarnexus.org">Contact</a>
+          </div>
+          <small>
+            © 2026 PolarNexus. Built for polar research and discovery.
+          </small>
         </footer>
       </div>
     </div>
   );
 }
+
+const resourceConfigs = {
+  "Polar Research Repository": {
+    icon: "book",
+    noun: "resources",
+    count: "12,840+",
+    subtitle:
+      "Explore, discover and utilize polar research knowledge from expeditions, datasets, publications and media.",
+    tabs: ["All Resources", "Reports", "Datasets", "Publications", "Media"],
+    stats: [
+      ["file", "12,840+", "Reports"],
+      ["database", "8,420+", "Datasets"],
+      ["book", "5,210+", "Publications"],
+      ["image", "18,760+", "Media Files"],
+    ],
+  },
+  "Expedition Reports": {
+    icon: "flag",
+    noun: "reports",
+    count: "156",
+    subtitle:
+      "Explore detailed expedition reports from Indian Antarctic missions, field observations and station operations.",
+    tabs: ["All Reports", "By Station", "By Expedition", "By Year", "By Topic"],
+    stats: [
+      ["file", "156", "Total Reports"],
+      ["mountain", "12", "Stations"],
+      ["snow", "28", "Expeditions"],
+      ["calendar", "2024", "Latest Report"],
+    ],
+  },
+  "Scientific Datasets": {
+    icon: "database",
+    noun: "datasets",
+    count: "8,420+",
+    subtitle:
+      "Explore polar scientific datasets collected from expeditions, observations, instruments and monitoring systems.",
+    tabs: [
+      "All Datasets",
+      "By Parameter",
+      "By Location",
+      "By Expedition",
+      "By Year",
+    ],
+    stats: [
+      ["database", "8,420+", "Total Datasets"],
+      ["chart", "54,210+", "Parameters"],
+      ["user", "126", "Locations"],
+      ["download", "2.3 TB", "Total Data Size"],
+    ],
+  },
+  Publications: {
+    icon: "book",
+    noun: "publications",
+    count: "5,210+",
+    subtitle:
+      "Discover peer-reviewed research, articles, conference papers, technical reports and scientific publications on polar studies.",
+    tabs: [
+      "All Publications",
+      "Journal Articles",
+      "Conference Papers",
+      "Technical Reports",
+      "Books / Chapters",
+    ],
+    stats: [
+      ["book", "5,210+", "Total Publications"],
+      ["users", "3,458+", "Authors"],
+      ["file", "286+", "Journals"],
+      ["calendar", "2024", "Latest Publication"],
+    ],
+  },
+  "Photos / Videos": {
+    icon: "image",
+    noun: "media items",
+    count: "21,100",
+    subtitle:
+      "Explore visual stories from polar expeditions, research stations, field observations and scientific documentation.",
+    tabs: [
+      "All Media",
+      "Photos",
+      "Videos",
+      "By Expedition",
+      "By Location",
+      "By Year",
+    ],
+    stats: [
+      ["image", "18,760+", "Photos"],
+      ["chart", "2,340+", "Videos"],
+      ["user", "126+", "Locations"],
+      ["calendar", "1985 – 2024", "Time Range"],
+    ],
+  },
+  "Outreach & Media": {
+    icon: "megaphone",
+    noun: "outreach items",
+    count: "28",
+    subtitle:
+      "Share polar knowledge with the world. Manage outreach content, campaigns, events and media to inspire diverse audiences.",
+    tabs: [
+      "All Content",
+      "Campaigns",
+      "Events",
+      "Media Library",
+      "Social Media",
+      "News & Announcements",
+    ],
+    stats: [
+      ["megaphone", "28", "Active Campaigns"],
+      ["users", "52,430", "People Reached"],
+      ["snow", "12,845", "Engagements"],
+      ["image", "86", "Media Assets"],
+      ["calendar", "14", "Events"],
+    ],
+  },
+  "Citizen Science": {
+    icon: "users",
+    noun: "citizen science projects",
+    count: "18",
+    subtitle:
+      "Engage the public in polar research. Enable participation in real-world observations and contribute to scientific discovery.",
+    tabs: [
+      "Ongoing Projects",
+      "My Observations",
+      "Pending Validations",
+      "Project Explorer",
+    ],
+    stats: [
+      ["users", "1,248", "Active Contributors"],
+      ["file", "56,320", "Total Observations"],
+      ["snow", "18", "Active Projects"],
+      ["user", "24", "Regions Covered"],
+      ["users", "320", "Top Contributors"],
+    ],
+  },
+};
+const recordTitles = {
+  "Polar Research Repository": [
+    "Indian Scientific Expedition to Antarctica 2023–24",
+    "Antarctic Atmospheric Observation Dataset",
+    "Sea Ice Dynamics and Climate Impact",
+    "Maitri Station Aerial Survey Images",
+    "Bharati Station Energy Systems",
+    "Glacial Retreat Monitoring Archive",
+    "Southern Ocean Biodiversity Assessment",
+    "Polar Logistics and Supply Records",
+    "Antarctic Meteorology Field Notes",
+    "Ice Core Analysis Collection",
+    "Aurora Observation Research Series",
+    "Polar Geospatial Mapping Archive",
+    "Citizen Science Ice Watch Reports",
+    "Cryosphere Change Technical Review",
+    "Marine Mammal Sighting Records",
+    "Station Infrastructure Knowledge Base",
+    "Polar Education Media Collection",
+    "Climate Risk Assessment Reports",
+    "Antarctic Treaty Research Papers",
+    "Expedition Equipment Documentation",
+  ],
+  "Expedition Reports": [
+    "41st Indian Scientific Expedition to Antarctica (2023–24)",
+    "40th Indian Scientific Expedition to Antarctica (2022–23)",
+    "39th Indian Scientific Expedition to Antarctica (2021–22)",
+    "38th Indian Scientific Expedition to Antarctica (2020–21)",
+    "37th Indian Scientific Expedition to Antarctica (2019–20)",
+    "Arctic Research Expedition 2024",
+    "Bharati Station Summer Operations 2024",
+    "Maitri Winter Logistics Report",
+    "Southern Ocean Transect Mission",
+    "Larsemann Hills Field Survey",
+    "Antarctic Ice Shelf Reconnaissance",
+    "Polar Atmospheric Campaign Report",
+    "Indian Ocean Gateway Expedition",
+    "Glacier Mass Balance Mission",
+    "Penguin Colony Observation Mission",
+    "Antarctic Geology Field Campaign",
+    "Sea Ice Navigation Assessment",
+    "Renewable Energy Station Review",
+    "High Latitude Weather Mission",
+    "Polar Communications Field Report",
+  ],
+  "Scientific Datasets": [
+    "Antarctic Surface Temperature Data (1985–2024)",
+    "Wind Speed & Direction Dataset (1990–2024)",
+    "Snow Accumulation & Depth Dataset",
+    "Sea Ice Concentration Dataset (2000–2024)",
+    "Atmospheric CO₂ Concentration Data",
+    "Southern Ocean Salinity Profiles",
+    "Maitri Solar Radiation Measurements",
+    "Bharati Station Energy Telemetry",
+    "Glacier Velocity Observation Series",
+    "Antarctic Precipitation Archive",
+    "Ozone Layer Monitoring Dataset",
+    "Marine Ecosystem Sampling Data",
+    "Ice Core Chemistry Records",
+    "Permafrost Temperature Monitoring",
+    "Polar Aerosol Optical Depth Data",
+    "Satellite Iceberg Tracking Dataset",
+    "Geomagnetic Field Variation Data",
+    "Ocean Current Mooring Records",
+    "Antarctic Soil Moisture Survey",
+    "Aurora Activity Observation Data",
+  ],
+  Publications: [
+    "Atmospheric Rivers and Snowfall Variability in East Antarctica",
+    "Sea Ice Dynamics in the Indian Ocean Sector",
+    "Performance Evaluation of Maitri Station Energy Systems",
+    "Glacial Retreat and Mass Balance in Larsemann Hills",
+    "Geomagnetic Variations Observed at Bharati Station",
+    "Southern Ocean Carbon Exchange Under Climate Change",
+    "Antarctic Ice Shelf Stability Assessment",
+    "Polar Aerosols and Cloud Formation",
+    "Marine Biodiversity of the Indian Antarctic Sector",
+    "Seasonal Ozone Variability over Antarctica",
+    "Satellite Mapping of Antarctic Crevasses",
+    "Renewable Microgrids for Polar Stations",
+    "Long-Term Snow Accumulation Trends",
+    "Polar Logistics Optimization Using AI",
+    "Cryosphere Feedbacks in Global Climate Models",
+    "Antarctic Meteorite Recovery Programme",
+    "Ocean Acidification in High Latitude Waters",
+    "Remote Sensing of Glacier Lake Change",
+    "Citizen Science for Polar Conservation",
+    "Polar Governance and Research Collaboration",
+  ],
+  "Photos / Videos": [
+    "Maitri Station — Winter View",
+    "Emperor Penguins at Shore",
+    "Iceberg Calving Timelapse",
+    "Aurora Australis",
+    "Bharati Station — Summer",
+    "Field Team on Glacier Survey",
+    "Icebreaker MV Vasiliy Golovnin",
+    "Glacier Crevasses",
+    "Indian Flag at Maitri Station",
+    "Weddell Seal Observation",
+    "Southern Ocean Sunrise",
+    "Antarctic Weather Balloon Launch",
+    "Snow Tractor Logistics Run",
+    "Ice Core Drilling Fieldwork",
+    "Adélie Penguin Colony",
+    "Bharati Research Laboratory",
+    "Sea Ice Traverse Aerial View",
+    "Polar Night Star Trails",
+    "Station Wind Turbine Maintenance",
+    "Glacial Lake Expedition",
+  ],
+  "Outreach & Media": [
+    "Save Our Sea Ice",
+    "World Polar Day 2024",
+    "Life at Bharati Station",
+    "Climate Change and Polar Ecosystems",
+    "Amazing Aurora Australis!",
+    "New Study Reveals Ice Core Secrets",
+    "Polar Science for Schools",
+    "Meet the Antarctic Research Team",
+    "Southern Ocean Awareness Week",
+    "Stories from the Ice Shelf",
+  ],
+  "Citizen Science": [
+    "Penguin Watch: Population Monitoring",
+    "Sea Ice Watch",
+    "Polar Weather Reporter",
+    "Antarctic Coast Cleanup Tracker",
+    "Adélie Penguin Colony Sighting",
+    "Sea Ice Fracture Pattern Observed",
+    "Temperature Reading −12.4 °C",
+    "Unusual Ice Formation Noted",
+    "Marine Wildlife Observation",
+    "Glacier Change Photo Survey",
+  ],
+};
+
+function ResourcePage({
+  section,
+  username,
+  onDashboard,
+  onLogout,
+  onNavigate,
+}) {
+  const config = resourceConfigs[section];
+  const [query, setQuery] = useState("");
+  const [tab, setTab] = useState(config.tabs[0]);
+  const [open, setOpen] = useState(false);
+  const [notice, setNotice] = useState("");
+  const records = useMemo(
+    () =>
+      recordTitles[section].map((title, index) => ({
+        title,
+        index,
+        type:
+          section === "Photos / Videos"
+            ? index % 3 === 2
+              ? "Video"
+              : "Photo"
+            : section === "Outreach & Media"
+              ? ["Campaign", "Event", "Video", "Blog", "Social Post", "Press Release"][index % 6]
+              : section === "Citizen Science"
+                ? ["Active Project", "My Observation", "Pending Validation", "Explorer Project"][index % 4]
+            : section === "Scientific Datasets"
+              ? "Dataset"
+              : section === "Publications"
+                ? "Journal Article"
+                : section === "Expedition Reports"
+                  ? "Expedition Report"
+                  : ["Expedition Report", "Dataset", "Publication", "Media"][
+                      index % 4
+                    ],
+        date: `${String(12 - (index % 10)).padStart(2, "0")} May 2024`,
+        size:
+          section === "Scientific Datasets"
+            ? `${(0.8 + index * 0.2).toFixed(1)} GB`
+            : section === "Photos / Videos"
+              ? `${(4 + index * 1.3).toFixed(1)} MB`
+              : `${(1.2 + index * 0.4).toFixed(1)} MB`,
+      })),
+    [section],
+  );
+  const tabRecords = records.filter((record) => {
+    if (section === "Outreach & Media") {
+      const groups = { "All Content": records.map((item) => item.type), Campaigns: ["Campaign"], Events: ["Event"], "Media Library": ["Video", "Blog"], "Social Media": ["Social Post"], "News & Announcements": ["Press Release"] };
+      return groups[tab]?.includes(record.type);
+    }
+    if (section === "Citizen Science") {
+      const groups = { "Ongoing Projects": ["Active Project"], "My Observations": ["My Observation"], "Pending Validations": ["Pending Validation"], "Project Explorer": ["Explorer Project"] };
+      return groups[tab]?.includes(record.type);
+    }
+    return true;
+  });
+  const filtered = tabRecords.filter((record) =>
+    record.title.toLowerCase().includes(query.toLowerCase()),
+  );
+  const select = (name) => {
+    if (name === "Dashboard") onDashboard();
+    else if (resourceConfigs[name]) onNavigate(name);
+    else setNotice(`${name} selected — feature ready to explore.`);
+    setOpen(false);
+  };
+  return (
+    <div className={`dashboard resource-page ${section === 'Outreach & Media' ? 'outreach-page' : section === 'Citizen Science' ? 'citizen-page' : ''}`}>
+      <aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
+        <div className="sidebar-head">
+          <Brand compact />
+          <button className="close-nav" onClick={() => setOpen(false)}>
+            <Icon name="x" />
+          </button>
+        </div>
+        <nav>
+          {nav.map(([icon, name], index) => (
+            <button
+              key={name}
+              onClick={() => select(name)}
+              className={`${name === section ? "selected" : ""} ${index === 6 ? "nav-break" : ""}`}
+            >
+              <Icon name={icon} size={19} />
+              <span>{name}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="ai-card">
+          <div>
+            <Icon name="snow" size={27} />
+          </div>
+          <p>
+            <b>Polar AI Assistant</b>
+            <span>Your AI research companion for polar insights.</span>
+          </p>
+        </div>
+      </aside>
+      <div className="dash-main">
+        <header className="topbar">
+          <button className="menu-button" onClick={() => setOpen(true)}>
+            <Icon name="menu" />
+          </button>
+          <div className="top-search">
+            <Icon name="search" size={20} />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={`Search ${config.noun}...`}
+            />
+            <kbd>⌘ K</kbd>
+          </div>
+          <div className="user-area">
+            <Icon name="user" size={20} />
+            <span>Welcome, {username}</span>
+            <button onClick={onLogout}>
+              <Icon name="logout" size={20} />
+              Logout
+            </button>
+          </div>
+        </header>
+        {notice && (
+          <div className="notice">
+            {notice}
+            <button onClick={() => setNotice("")}>×</button>
+          </div>
+        )}
+        <section className="resource-hero">
+          <div>
+            <h1>{section}</h1>
+            <p>{config.subtitle}</p>
+            <div className="resource-search">
+              <Icon name="search" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={`Search ${config.noun}...`}
+              />
+              <button
+                onClick={() =>
+                  setNotice(`${filtered.length} matching ${config.noun} found.`)
+                }
+              >
+                ✦ &nbsp; AI Semantic Search
+              </button>
+            </div>
+            <div className="resource-stats">
+              {config.stats.map(([icon, value, label]) => (
+                <article key={label}>
+                  <div>
+                    <Icon name={icon} size={25} />
+                  </div>
+                  <span>
+                    <b>{value}</b>
+                    <small>{label}</small>
+                  </span>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section className="resource-layout">
+          <div className="resource-results">
+            <div className="resource-tabs">
+              {config.tabs.map((label) => (
+                <button
+                  className={tab === label ? "active" : ""}
+                  onClick={() => setTab(label)}
+                  key={label}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="result-toolbar">
+              <span>
+                Showing {filtered.length ? 1 : 0}–{filtered.length} of{" "}
+                {config.count} {config.noun}
+              </span>
+              <button>Sort by: Latest⌄</button>
+            </div>
+            {filtered.map((record) => (
+              <article
+                className={`resource-row ${section === "Photos / Videos" || section === "Outreach & Media" || section === "Citizen Science" ? "media-row" : ""}`}
+                key={record.title}
+              >
+                <div className="resource-thumb visual-thumb" style={{ backgroundPosition: `${(record.index * 17) % 100}% ${(record.index * 23) % 100}%` }}>
+                  <Icon
+                    name={section === "Photos / Videos" || section === "Outreach & Media" || section === "Citizen Science" ? "image" : config.icon}
+                    size={28}
+                  />
+                  <em>{record.type}</em>
+                </div>
+                <div className="resource-info">
+                  <h3>{record.title}</h3>
+                  <p>
+                    {section === "Photos / Videos"
+                      ? "Captured during polar field operations and scientific documentation."
+                      : section === "Outreach & Media"
+                        ? "Polar outreach content designed to inform, inspire and engage a global audience."
+                        : section === "Citizen Science"
+                          ? "Community-powered polar observation supporting real-world scientific discovery."
+                      : `Comprehensive ${record.type.toLowerCase()} covering polar research, observations and findings.`}
+                  </p>
+                  <small>
+                    {record.type} <i /> Open Access
+                  </small>
+                </div>
+                <div className="resource-meta">
+                  <span>{record.date}</span>
+                  <b>{record.size}</b>
+                </div>
+                <button
+                  className="row-action"
+                  onClick={() => setNotice(`${record.title} download started.`)}
+                >
+                  <Icon name="download" size={19} />
+                </button>
+              </article>
+            ))}
+          </div>
+          <aside className="filter-panel">
+            <div className="filter-title">
+              <h2>Filters</h2>
+              <button
+                onClick={() => {
+                  setQuery("");
+                  setTab(config.tabs[0]);
+                }}
+              >
+                Clear All
+              </button>
+            </div>
+            <label>
+              Resource Type
+              <select>
+                <option>All Types</option>
+                <option>{section}</option>
+              </select>
+            </label>
+            <label>
+              Research Area
+              <select>
+                <option>All Research Areas</option>
+                <option>Antarctica</option>
+                <option>Southern Ocean</option>
+              </select>
+            </label>
+            <label>
+              Year Range
+              <select>
+                <option>All Years</option>
+                <option>2024</option>
+                <option>2023</option>
+              </select>
+            </label>
+            <label>
+              Tags / Keywords
+              <input placeholder="Search tags or keywords..." />
+            </label>
+            <button
+              className="apply-filter"
+              onClick={() => setNotice("Filters applied to the resource list.")}
+            >
+              ⌕ &nbsp; Apply Filters
+            </button>
+            <div className="side-actions">
+              <h3>Quick Actions</h3>
+              <button
+                onClick={() => setNotice("A new collection has been created.")}
+              >
+                Create Collection
+              </button>
+              <button
+                onClick={() =>
+                  setNotice("Your selected resources are ready to download.")
+                }
+              >
+                Download Selected
+              </button>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [loading, setLoading] = useState(true),
     [user, setUser] = useState(null);
+  const [section, setSection] = useState("Dashboard");
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1500);
     return () => clearTimeout(t);
@@ -622,9 +1244,34 @@ export default function App() {
     <>
       {loading && <Preloader />}
       {user ? (
-        <Dashboard username={user} onLogout={() => setUser(null)} />
+        section === "Dashboard" ? (
+          <Dashboard
+            username={user}
+            onLogout={() => {
+              setUser(null);
+              setSection("Dashboard");
+            }}
+            onNavigate={setSection}
+          />
+        ) : (
+          <ResourcePage
+            section={section}
+            username={user}
+            onDashboard={() => setSection("Dashboard")}
+            onLogout={() => {
+              setUser(null);
+              setSection("Dashboard");
+            }}
+            onNavigate={setSection}
+          />
+        )
       ) : (
-        <Login onLogin={setUser} />
+        <Login
+          onLogin={(name) => {
+            setUser(name);
+            setSection("Dashboard");
+          }}
+        />
       )}
     </>
   );
