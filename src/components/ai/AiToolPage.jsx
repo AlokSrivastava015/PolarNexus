@@ -9,7 +9,7 @@ import { nav, resourceConfigs, aiSections } from "../../data/mockData";
 export default function AiToolPage({
   section,
   username,
-  onDashboard,
+  onHome,
   onLogout,
   onNavigate,
 }) {
@@ -18,7 +18,7 @@ export default function AiToolPage({
 
   const select = (name) => {
     setOpen(false);
-    if (name === "Dashboard") onDashboard();
+    if (name === "Home") onHome();
     else if (resourceConfigs[name] || aiSections.includes(name)) onNavigate(name);
     else setNotice(`${name} selected — feature ready to explore.`);
   };

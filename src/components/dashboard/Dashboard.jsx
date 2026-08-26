@@ -8,8 +8,8 @@ import {
   aiSections,
 } from "../../data/mockData";
 
-export default function Dashboard({ username, onLogout, onNavigate }) {
-  const [active, setActive] = useState("Dashboard");
+export default function Home({ username, onLogout, onNavigate }) {
+  const [active, setActive] = useState("Home");
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
@@ -40,7 +40,7 @@ export default function Dashboard({ username, onLogout, onNavigate }) {
       onNavigate(name);
       return;
     }
-    if (name !== "Dashboard")
+    if (name !== "Home")
       setNotice(`${name} selected — module ready to explore.`);
   };
 

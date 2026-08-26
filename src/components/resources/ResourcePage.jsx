@@ -11,7 +11,7 @@ import {
 export default function ResourcePage({
   section,
   username,
-  onDashboard,
+  onHome,
   onLogout,
   onNavigate,
 }) {
@@ -72,7 +72,7 @@ export default function ResourcePage({
   );
 
   const select = (name) => {
-    if (name === "Dashboard") onDashboard();
+    if (name === "Home") onHome();
     else if (resourceConfigs[name] || aiSections.includes(name)) onNavigate(name);
     else setNotice(`${name} selected — feature ready to explore.`);
     setOpen(false);

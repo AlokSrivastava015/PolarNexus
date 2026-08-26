@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Preloader from "./components/common/Preloader";
 import Login from "./components/auth/Login";
-import Dashboard from "./components/dashboard/Dashboard";
+import Home from "./components/dashboard/Dashboard";
 import ResourcePage from "./components/resources/ResourcePage";
 import AiToolPage from "./components/ai/AiToolPage";
 import { aiSections } from "./data/mockData";
@@ -9,7 +9,7 @@ import { aiSections } from "./data/mockData";
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [section, setSection] = useState("Dashboard");
+  const [section, setSection] = useState("Home");
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1500);
@@ -20,12 +20,12 @@ export default function App() {
     <>
       {loading && <Preloader />}
       {user ? (
-        section === "Dashboard" ? (
-          <Dashboard
+        section === "Home" ? (
+          <Home
             username={user}
             onLogout={() => {
               setUser(null);
-              setSection("Dashboard");
+              setSection("Home");
             }}
             onNavigate={setSection}
           />
@@ -33,10 +33,10 @@ export default function App() {
           <AiToolPage
             section={section}
             username={user}
-            onDashboard={() => setSection("Dashboard")}
+            onHome={() => setSection("Home")}
             onLogout={() => {
               setUser(null);
-              setSection("Dashboard");
+              setSection("Home");
             }}
             onNavigate={setSection}
           />
@@ -44,10 +44,10 @@ export default function App() {
           <ResourcePage
             section={section}
             username={user}
-            onDashboard={() => setSection("Dashboard")}
+            onHome={() => setSection("Home")}
             onLogout={() => {
               setUser(null);
-              setSection("Dashboard");
+              setSection("Home");
             }}
             onNavigate={setSection}
           />
@@ -56,7 +56,7 @@ export default function App() {
         <Login
           onLogin={(name) => {
             setUser(name);
-            setSection("Dashboard");
+            setSection("Home");
           }}
         />
       )}

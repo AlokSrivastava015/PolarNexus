@@ -6,7 +6,7 @@ export const features = [
 ];
 
 export const nav = [
-  ["home", "Dashboard"],
+  ["home", "Home"],
   ["book", "Polar Research Repository"],
   ["flag", "Expedition Reports"],
   ["database", "Scientific Datasets"],
