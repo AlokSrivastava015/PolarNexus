@@ -22,6 +22,8 @@ export default function ResourcePage({
   const [tab, setTab] = useState(config.tabs[0]);
   const [open, setOpen] = useState(false);
   const [notice, setNotice] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const isResearchPapers = section === "Polar Research Repository";
 
   const records = useMemo(
     () =>
@@ -81,7 +83,7 @@ export default function ResourcePage({
   };
 
   return (
-    <div className={`dashboard resource-page ${section === 'Outreach & Media' ? 'outreach-page' : section === 'Citizen Science' ? 'citizen-page' : ''}`}>
+    <div className={`dashboard resource-page ${isResearchPapers ? 'research-papers-page' : ''} ${section === 'Outreach & Media' ? 'outreach-page' : section === 'Citizen Science' ? 'citizen-page' : ''}`}>
       <Sidebar activeSection={section} onNavigate={select} onLogout={onLogout} isOpen={open} onClose={() => setOpen(false)} />
       <div className="dash-main">
         <header className="topbar">
@@ -166,7 +168,10 @@ export default function ResourcePage({
                 Showing {filtered.length ? 1 : 0}–{filtered.length} of{" "}
                 {config.count} {config.noun}
               </span>
-              <button>Sort by: Latest⌄</button>
+              <div className="result-controls">
+                <button>Sort by: Latest⌄</button>
+                {isResearchPapers && <button className="filters-trigger" onClick={() => setShowFilters((value) => !value)}><Icon name="filter" size={14} /> Filters</button>}
+              </div>
             </div>
             {filtered.map((record) => (
               <article
@@ -208,45 +213,30 @@ export default function ResourcePage({
               </article>
             ))}
           </div>
-          <aside className="filter-panel">
+          <aside className={`filter-panel ${isResearchPapers ? 'repository-filter-panel' : ''} ${showFilters ? 'filter-open' : ''}`}>
             <div className="filter-title">
               <h2>Filters</h2>
               <button
                 onClick={() => {
                   setQuery("");
                   setTab(config.tabs[0]);
+                  setShowFilters(false);
                 }}
               >
                 Clear All
               </button>
             </div>
-            <label>
-              Resource Type
-              <select>
-                <option>All Types</option>
-                <option>{section}</option>
-              </select>
-            </label>
-            <label>
-              Research Area
-              <select>
-                <option>All Research Areas</option>
-                <option>Antarctica</option>
-                <option>Southern Ocean</option>
-              </select>
-            </label>
-            <label>
-              Year Range
-              <select>
-                <option>All Years</option>
-                <option>2024</option>
-                <option>2023</option>
-              </select>
-            </label>
-            <label>
-              Tags / Keywords
-              <input placeholder="Search tags or keywords..." />
-            </label>
+            {isResearchPapers ? <>
+              <details open><summary>Resource Type</summary><label><input type="checkbox" defaultChecked /> Research Papers</label><label><input type="checkbox" /> Expedition Reports</label><label><input type="checkbox" /> Datasets</label><label><input type="checkbox" /> Publications</label></details>
+              <details><summary>Research Area</summary><label><input type="checkbox" /> Antarctica</label><label><input type="checkbox" /> Southern Ocean</label><label><input type="checkbox" /> Arctic</label></details>
+              <details><summary>Year Range</summary><label><input type="checkbox" /> 2024</label><label><input type="checkbox" /> 2023</label><label><input type="checkbox" /> Earlier</label></details>
+              <details><summary>Tags / Keywords</summary><input placeholder="Search tags or keywords..." /></details>
+            </> : <>
+              <label>Resource Type<select><option>All Types</option><option>{section}</option></select></label>
+              <label>Research Area<select><option>All Research Areas</option><option>Antarctica</option><option>Southern Ocean</option></select></label>
+              <label>Year Range<select><option>All Years</option><option>2024</option><option>2023</option></select></label>
+              <label>Tags / Keywords<input placeholder="Search tags or keywords..." /></label>
+            </>}
             <button
               className="apply-filter"
               onClick={() => setNotice("Filters applied to the resource list.")}

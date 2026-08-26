@@ -54,7 +54,7 @@ export default function Sidebar({
 
           {/* 2. Knowledge Repository */}
           <div className="nav-group">
-            <div className="section-header">
+            <div className="section-header sidebar-category-heading">
               <Icon name="book" size={20} />
               <span>Knowledge Repository</span>
             </div>
@@ -82,7 +82,7 @@ export default function Sidebar({
 
           {/* 3. AI Workspace */}
           <div className="nav-group">
-            <div className="section-header">
+            <div className="section-header sidebar-category-heading">
               <Icon name="spark" size={20} />
               <span>AI Workspace</span>
             </div>
@@ -109,7 +109,7 @@ export default function Sidebar({
 
           {/* 4. Insights */}
           <div className="nav-group">
-            <div className="section-header">
+            <div className="section-header sidebar-category-heading">
               <Icon name="chart" size={20} />
               <span>Insights</span>
             </div>
@@ -135,7 +135,7 @@ export default function Sidebar({
 
           {/* 5. Outreach */}
           <div className="nav-group">
-            <div className="section-header">
+            <div className="section-header sidebar-category-heading">
               <Icon name="megaphone" size={20} />
               <span>Outreach</span>
             </div>
