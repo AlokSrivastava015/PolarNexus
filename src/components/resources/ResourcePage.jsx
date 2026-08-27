@@ -161,6 +161,20 @@ export default function ResourcePage({
   const handleSearchChange = (event) => setQuery(event.target.value);
   const toggleRecord = (title) => setSelectedRecords((current) => current.includes(title) ? current.filter((item) => item !== title) : [...current, title]);
   const openDetail = (record) => { setDetailRecord(record); setDetailTab("Overview"); };
+  const openCollectionModal = () => {
+    setShowFilters(false);
+    setShowCollectionModal(true);
+  };
+  const deleteCollection = (collection) => {
+    if (!window.confirm(`Delete the collection "${collection.name}"?`)) return;
+
+    setCollections((current) => {
+      const next = current.filter((item) => item.id !== collection.id);
+      localStorage.setItem("polarnexus-collections", JSON.stringify(next));
+      return next;
+    });
+    setNotice(`${collection.name} deleted.`);
+  };
   const saveCollection = (collection) => {
     setCollections((current) => {
       const next = [collection, ...current];
@@ -259,7 +273,7 @@ export default function ResourcePage({
                 All Collections
               </button>
               <div className="resource-tab-actions">
-                <button onClick={() => setShowCollectionModal(true)}>Create Collection</button>
+                <button onClick={openCollectionModal}>Create Collection</button>
                 <button onClick={() => setNotice(`${selectedRecords.length || sortedRecords.length} resource${(selectedRecords.length || sortedRecords.length) === 1 ? '' : 's'} prepared for download.`)}>Download Selected</button>
               </div>
             </div>
@@ -289,13 +303,21 @@ export default function ResourcePage({
                       <p>{collection.details || "No collection details added."}</p>
                       <small>{collection.resourceTitles.length} resource{collection.resourceTitles.length === 1 ? "" : "s"}</small>
                     </div>
+                    <button
+                      className="collection-delete-button"
+                      onClick={() => deleteCollection(collection)}
+                      aria-label={`Delete ${collection.name}`}
+                      title="Delete collection"
+                    >
+                      <Icon name="trash" size={17} />
+                    </button>
                   </article>
                 )) : (
                   <div className="empty-collections-state">
                     <Icon name="bookmark" size={30} />
                     <h3>No collections yet</h3>
                     <p>Create a collection to keep related research resources together.</p>
-                    <button className="btn-primary" onClick={() => setShowCollectionModal(true)}>Create Collection</button>
+                    <button className="btn-primary" onClick={openCollectionModal}>Create Collection</button>
                   </div>
                 )}
               </div>

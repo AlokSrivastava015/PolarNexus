@@ -6,6 +6,8 @@ import AiSemanticSearchSection from "./AiSemanticSearchSection";
 import RagAssistantSection from "./RagAssistantSection";
 import AiSummarizationSection from "./AiSummarizationSection";
 import ContentStudioSection from "./ContentStudioSection";
+import ResearchInsightsSection from "./ResearchInsightsSection";
+import PolarMapSection from "./PolarMapSection";
 import { nav, resourceConfigs, aiSections } from "../../data/mockData";
 
 export default function AiToolPage({
@@ -82,6 +84,8 @@ export default function AiToolPage({
           <AiSummarizationSection setNotice={setNotice} />
         )}
         {section === "Content Studio" && <ContentStudioSection setNotice={setNotice} />}
+        {section === "Research Insights" && <ResearchInsightsSection setNotice={setNotice} />}
+        {section === "Polar Map" && <PolarMapSection setNotice={setNotice} />}
       </div>
     </div>
   );

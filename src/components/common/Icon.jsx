@@ -79,6 +79,8 @@ const Icon = ({ name, size = 24 }) => {
     chevronLeft: <path d="m15 18-6-6 6-6" />,
     chevronRight: <path d="m9 18 6-6-6-6" />,
     chevronDown: <path d="m6 9 6 6 6-6" />,
+    tag: <><path d="M20 13 13 20 3 10V3h7Z"/><circle cx="7.5" cy="7.5" r=".7" fill="currentColor"/></>,
+    alert: <><path d="M10.3 3.4 2.6 17a2.1 2.1 0 0 0 1.8 3.1h15.2a2.1 2.1 0 0 0 1.8-3.1L13.7 3.4a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></>,
     search: (
       <>
         <circle cx="11" cy="11" r="6.5" />
@@ -180,6 +182,14 @@ const Icon = ({ name, size = 24 }) => {
     x: (
       <>
         <path d="m6 6 12 12M18 6 6 18" />
+      </>
+    ),
+    trash: (
+      <>
+        <path d="M4 7h16" />
+        <path d="M10 11v6M14 11v6" />
+        <path d="m6 7 1 13h10l1-13" />
+        <path d="M9 7V4h6v3" />
       </>
     ),
     bookmark: <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />,
