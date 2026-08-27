@@ -31,7 +31,7 @@ export const expeditions = [
   ],
 ];
 
-export const aiSections = ["AI Semantic Search", "RAG-based Assistant", "AI Summarization"];
+export const aiSections = ["AI Semantic Search", "RAG-based Assistant", "AI Summarization", "Content Studio"];
 
 export const publications = [
   [

@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import Icon from "../common/Icon";
 import BackgroundSlideshow from "../common/BackgroundSlideshow";
 
-export default function AiSemanticSearchSection({ setNotice }) {
-  const [query, setQuery] = useState(
-    "How does sea ice thickness variation affect penguin breeding in Antarctica?"
-  );
+export default function AiSemanticSearchSection({ query, setQuery, setNotice }) {
   const [activeTab, setActiveTab] = useState("All Results (156)");
   const [viewMode, setViewMode] = useState("list");
   const [bookmarked, setBookmarked] = useState(new Set());

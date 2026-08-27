@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import Icon from "../common/Icon";
 import BackgroundSlideshow from "../common/BackgroundSlideshow";
 
-export default function RagAssistantSection({ setNotice }) {
-  const [prompt, setPrompt] = useState(
-    "What are the major findings of the 41st Indian Scientific Expedition to Antarctica (2023–24)?"
-  );
+export default function RagAssistantSection({ prompt, setPrompt, setNotice }) {
   const [followUp, setFollowUp] = useState("");
   const [liked, setLiked] = useState(null);
 

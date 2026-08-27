@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Icon from "../common/Icon";
 import Brand from "../common/Brand";
 import Sidebar from "../common/Sidebar";
@@ -46,6 +46,12 @@ export default function ResourcePage({
     "Photos / Videos",
   ].includes(section);
 
+  useEffect(() => {
+    setTab(config.tabs[0]);
+    setQuery("");
+    setShowFilters(false);
+  }, [section, config.tabs]);
+
   const records = useMemo(
     () =>
       recordTitles[section].map((title, index) => ({
@@ -63,7 +69,7 @@ export default function ResourcePage({
             : section === "Scientific Datasets"
               ? "Dataset"
               : section === "Publications"
-                ? "Journal Article"
+                ? ["Journal Article", "Conference Paper", "Technical Report", "Book Chapter"][index % 4]
                 : section === "Expedition Reports"
                   ? "Expedition Report"
                   : ["Expedition Report", "Dataset", "Publication", "Media"][
@@ -81,6 +87,47 @@ export default function ResourcePage({
   );
 
   const tabRecords = records.filter((record) => {
+    if (section === "Expedition Reports") {
+      const groups = {
+        "All Reports": () => true,
+        "By Station": (record) => record.index % 3 === 0,
+        "By Expedition": (record) => record.index < 5 || record.index % 4 === 0,
+        "By Year": (record) => record.index % 3 === 1,
+        "By Topic": (record) => record.index % 3 === 2,
+      };
+      return groups[tab]?.(record) ?? true;
+    }
+    if (section === "Scientific Datasets") {
+      const groups = {
+        "All Datasets": () => true,
+        "By Parameter": (record) => record.index % 4 === 0,
+        "By Location": (record) => record.index % 4 === 1,
+        "By Expedition": (record) => record.index % 4 === 2,
+        "By Year": (record) => record.index % 4 === 3,
+      };
+      return groups[tab]?.(record) ?? true;
+    }
+    if (section === "Publications") {
+      const groups = {
+        "All Publications": () => true,
+        "Journal Articles": (record) => record.type === "Journal Article",
+        "Conference Papers": (record) => record.type === "Conference Paper",
+        "Technical Reports": (record) => record.type === "Technical Report",
+        "Books / Chapters": (record) => record.type === "Book Chapter",
+      };
+      return groups[tab]?.(record) ?? true;
+    }
+    if (section === "Photos / Videos") {
+      const groups = {
+        "All Media": () => true,
+        Photos: (record) => record.type === "Photo",
+        Videos: (record) => record.type === "Video",
+        "By Expedition": (record) => record.index % 3 === 0,
+        "By Location": (record) => record.index % 3 === 1,
+        "By Year": (record) => record.index % 3 === 2,
+      };
+      return groups[tab]?.(record) ?? true;
+    }
     if (section === "Outreach & Media") {
       const groups = { "All Content": records.map((item) => item.type), Campaigns: ["Campaign"], Events: ["Event"], "Media Library": ["Video", "Blog"], "Social Media": ["Social Post"], "News & Announcements": ["Press Release"] };
       return groups[tab]?.includes(record.type);
@@ -111,6 +158,7 @@ export default function ResourcePage({
     else setNotice(`${name} selected — feature ready to explore.`);
     setOpen(false);
   };
+  const handleSearchChange = (event) => setQuery(event.target.value);
   const toggleRecord = (title) => setSelectedRecords((current) => current.includes(title) ? current.filter((item) => item !== title) : [...current, title]);
   const openDetail = (record) => { setDetailRecord(record); setDetailTab("Overview"); };
   const saveCollection = (collection) => {
@@ -138,7 +186,7 @@ export default function ResourcePage({
             <Icon name="search" size={20} />
             <input
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={handleSearchChange}
               placeholder={`Search ${config.noun}...`}
             />
             <kbd>⌘ K</kbd>
@@ -163,7 +211,7 @@ export default function ResourcePage({
               <Icon name="search" />
               <input
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={handleSearchChange}
                 placeholder={`Search ${config.noun}...`}
               />
               <button

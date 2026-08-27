@@ -5,6 +5,7 @@ import Sidebar from "../common/Sidebar";
 import AiSemanticSearchSection from "./AiSemanticSearchSection";
 import RagAssistantSection from "./RagAssistantSection";
 import AiSummarizationSection from "./AiSummarizationSection";
+import ContentStudioSection from "./ContentStudioSection";
 import { nav, resourceConfigs, aiSections } from "../../data/mockData";
 
 export default function AiToolPage({
@@ -16,6 +17,13 @@ export default function AiToolPage({
 }) {
   const [open, setOpen] = useState(false);
   const [notice, setNotice] = useState("");
+  const [searchQuery, setSearchQuery] = useState(
+    section === "AI Semantic Search"
+      ? "How does sea ice thickness variation affect penguin breeding in Antarctica?"
+      : section === "RAG-based Assistant"
+        ? "What are the major findings of the 41st Indian Scientific Expedition to Antarctica (2023–24)?"
+        : "",
+  );
 
   const select = (name) => {
     setOpen(false);
@@ -37,9 +45,13 @@ export default function AiToolPage({
           <div className="top-search">
             <Icon name="search" size={20} />
             <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
               placeholder={
                 section === "AI Summarization"
                   ? "Search documents to summarize..."
+                  : section === "Content Studio"
+                    ? "Search templates, topics or generate content..."
                   : section === "RAG-based Assistant"
                     ? "Search or ask anything about polar research..."
                     : "Search across repository..."
@@ -61,14 +73,15 @@ export default function AiToolPage({
         )}
 
         {section === "AI Semantic Search" && (
-          <AiSemanticSearchSection setNotice={setNotice} />
+          <AiSemanticSearchSection query={searchQuery} setQuery={setSearchQuery} setNotice={setNotice} />
         )}
         {section === "RAG-based Assistant" && (
-          <RagAssistantSection setNotice={setNotice} />
+          <RagAssistantSection prompt={searchQuery} setPrompt={setSearchQuery} setNotice={setNotice} />
         )}
         {section === "AI Summarization" && (
           <AiSummarizationSection setNotice={setNotice} />
         )}
+        {section === "Content Studio" && <ContentStudioSection setNotice={setNotice} />}
       </div>
     </div>
   );
