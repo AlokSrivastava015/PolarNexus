@@ -2,15 +2,29 @@ import React, { useState } from "react";
 import Icon from "../common/Icon";
 import Brand from "../common/Brand";
 import { features } from "../../data/mockData";
+import { login as apiLogin } from "../../services/api";
 
 export default function Login({ onLogin }) {
   const [role, setRole] = useState("Researcher");
   const [show, setShow] = useState(false);
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    if (role === "Researcher") onLogin(username.trim() || "Researcher");
+    setError("");
+    if (role !== "Researcher" && role !== "Scientist") return;
+    setSubmitting(true);
+    try {
+      const user = await apiLogin(username.trim(), password);
+      onLogin(user.full_name || user.username);
+    } catch (requestError) {
+      setError(requestError.message || "Unable to sign in. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -91,6 +105,8 @@ export default function Login({ onLogin }) {
                 <input
                   required
                   type={show ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                 />
                 <button
@@ -105,8 +121,9 @@ export default function Login({ onLogin }) {
             <button type="button" className="forgot">
               Forgot Password?
             </button>
-            <button className="login-button" type="submit">
-              Login <Icon name="arrow" size={20} />
+            {error && <p className="login-error" role="alert">{error}</p>}
+            <button className="login-button" type="submit" disabled={submitting}>
+              {submitting ? "Signing in..." : "Login"} <Icon name="arrow" size={20} />
               <span>✻</span>
             </button>
           </form>
@@ -114,7 +131,7 @@ export default function Login({ onLogin }) {
           <button
             className="google"
             type="button"
-            onClick={() => role === "Researcher" && onLogin("Researcher")}
+            onClick={() => setError("Google sign-in requires Supabase OAuth configuration. See backend/README.md.")}
           >
             <b>G</b> Login with Google
           </button>
