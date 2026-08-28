@@ -1,0 +1,9 @@
+{
+  "name": "fastapi-windows-runner",
+  "version": "1.0.0",
+  "description": "Windows configuration commands to install and run FastAPI",
+  "scripts": {
+    "install-env": "python -m venv venv && venv\\Scripts\\activate && pip install -r requirements.txt",
+    "start-server": "venv\\Scripts\\python -m uvicorn app.main:app --reload --app-dir . --env-file .env"
+  }
+}

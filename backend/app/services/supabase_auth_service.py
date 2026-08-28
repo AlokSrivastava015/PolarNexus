@@ -1,4 +1,5 @@
 from typing import Any
+from urllib import response
 import httpx
 from fastapi import HTTPException, status
 from ..config import get_settings
@@ -23,8 +24,29 @@ class SupabaseAuthService:
                 json=payload,
             )
         if response.is_error:
-            detail = response.json().get("msg") if response.headers.get("content-type", "").startswith("application/json") else None
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED if response.status_code in (400, 401, 422) else status.HTTP_502_BAD_GATEWAY, detail or "Supabase authentication request failed")
+            try:
+                body = response.json()
+            except Exception:
+                body = {"raw": response.text}
+
+            print("===== SUPABASE DEBUG =====")
+            print("STATUS:", response.status_code)
+            print("RESPONSE:", body)
+            print("==========================")
+
+            detail = (
+                body.get("msg")
+                or body.get("message")
+                or body.get("error_description")
+                or body.get("error")
+            )
+
+            raise HTTPException(
+                status.HTTP_401_UNAUTHORIZED
+                if response.status_code in (400, 401, 422)
+                else status.HTTP_502_BAD_GATEWAY,
+                detail or "Supabase authentication request failed"
+            )
         return response.json()
 
     async def signup(self, email: str, password: str, metadata: dict[str, Any]) -> dict[str, Any]:

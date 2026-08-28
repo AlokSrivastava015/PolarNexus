@@ -22,11 +22,11 @@ Start the API from `backend`:
 uvicorn app.main:app --reload
 ```
 
-It runs at `http://localhost:8000`; use `http://localhost:8000/docs` for Swagger and `http://localhost:8000/health` for the health check. Run tests with `pytest`.
+It runs at `http://localhost:8001`; use `http://localhost:8001/docs` for Swagger and `http://localhost:8001/health` for the health check. Run tests with `pytest`.
 
 ## Supabase setup
 
-1. Create a Supabase project and copy its PostgreSQL connection string into `DATABASE_URL`, changing its scheme to `postgresql+asyncpg://` for the application.
+1. Create a Supabase project and copy the **Session pooler** connection string from Supabase Dashboard → Connect → Session pooler into `DATABASE_URL`, changing its scheme to `postgresql+asyncpg://` for the application. It should use a `pooler.supabase.com` host and port `5432` or `6543`; avoid the direct `db.<project>.supabase.co` host when local DNS cannot resolve it.
 2. Run [`sql/001_initial.sql`](sql/001_initial.sql) in the Supabase SQL Editor once.
 3. Create a private Storage bucket named `polarnexus-files` (or set `STORAGE_BUCKET`).
 4. Add `http://localhost:5173` to the allowed frontend URLs. Set `CORS_ORIGINS` for deployed frontends.
@@ -39,7 +39,7 @@ All application endpoints are under `/api/v1`: `auth`, `resources`, `search`, `d
 
 ## Frontend
 
-Create a root `.env` containing `VITE_API_BASE_URL=http://localhost:8000/api/v1`, then run from the project root:
+Create a root `.env` containing `VITE_API_BASE_URL=http://localhost:8001/api/v1`, then run from the project root:
 
 ```powershell
 npm install
