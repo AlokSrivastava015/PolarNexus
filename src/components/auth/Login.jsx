@@ -4,7 +4,7 @@ import Brand from "../common/Brand";
 import { features } from "../../data/mockData";
 import { login as apiLogin } from "../../services/api";
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onSignup }) {
   const [role, setRole] = useState("Researcher");
   const [show, setShow] = useState(false);
   const [username, setUsername] = useState("");
@@ -139,6 +139,7 @@ export default function Login({ onLogin }) {
             <Icon name="shield" size={16} /> Secure Access to Polar Intelligence
             Platform
           </p>
+          <p className="auth-switch">New to PolarNexus? <button type="button" onClick={onSignup}>Create an account</button></p>
         </div>
       </section>
     </main>

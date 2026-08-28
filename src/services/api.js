@@ -15,3 +15,9 @@ export async function login(username_or_email, password) {
   localStorage.setItem("polarnexus_access_token", result.access_token);
   return result.user;
 }
+
+export async function signup(payload) {
+  const result = await apiFetch("/auth/signup", { method: "POST", body: JSON.stringify(payload) });
+  localStorage.setItem("polarnexus_access_token", result.access_token);
+  return result.user;
+}

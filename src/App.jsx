@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Preloader from "./components/common/Preloader";
 import Login from "./components/auth/Login";
+import Signup from "./components/auth/Signup";
 import Home from "./components/dashboard/Dashboard";
 import ResourcePage from "./components/resources/ResourcePage";
 import AiToolPage from "./components/ai/AiToolPage";
@@ -10,6 +11,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [section, setSection] = useState("Home");
+  const [authView, setAuthView] = useState("login");
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1500);
@@ -53,12 +55,7 @@ export default function App() {
             />
         )
       ) : (
-        <Login
-          onLogin={(name) => {
-            setUser(name);
-            setSection("Home");
-          }}
-        />
+        authView === "signup" ? <Signup onLogin={() => setAuthView("login")} onSignup={(name) => { setUser(name); setSection("Home"); }} /> : <Login onSignup={() => setAuthView("signup")} onLogin={(name) => { setUser(name); setSection("Home"); }} />
       )}
     </>
   );

@@ -10,6 +10,7 @@ import {
   recordTitles,
   aiSections,
 } from "../../data/mockData";
+import { apiFetch } from "../../services/api";
 
 export default function ResourcePage({
   section,
@@ -30,6 +31,8 @@ export default function ResourcePage({
   const [detailTab, setDetailTab] = useState("Overview");
   const [showCollections, setShowCollections] = useState(false);
   const [showCollectionModal, setShowCollectionModal] = useState(false);
+  const [apiRecords, setApiRecords] = useState(null);
+  const [apiError, setApiError] = useState("");
   const [collections, setCollections] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("polarnexus-collections") || "[]");
@@ -52,7 +55,7 @@ export default function ResourcePage({
     setShowFilters(false);
   }, [section, config.tabs]);
 
-  const records = useMemo(
+  const mockRecords = useMemo(
     () =>
       recordTitles[section].map((title, index) => ({
         title,
@@ -85,6 +88,38 @@ export default function ResourcePage({
       })),
     [section],
   );
+
+  useEffect(() => {
+    let active = true;
+    const resourceTypes = {
+      "Expedition Reports": "report",
+      "Scientific Datasets": "dataset",
+      Publications: "publication",
+      "Photos / Videos": "photo",
+    };
+    const type = resourceTypes[section];
+    const params = new URLSearchParams({ page: "1", page_size: "50", sort: sortOrder });
+    if (type) params.set("resource_type", type);
+    if (query.trim()) params.set("q", query.trim());
+    apiFetch(`/resources?${params}`)
+      .then(({ items }) => {
+        if (!active) return;
+        setApiRecords(items.map((item, index) => ({
+          id: item.id,
+          title: item.title,
+          index,
+          type: item.resource_type.replace(/(^|_)(\w)/g, (_, __, letter) => letter.toUpperCase()),
+          date: item.publication_date ? new Date(`${item.publication_date}T00:00:00`).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "Date unavailable",
+          size: item.metadata?.size || "—",
+          description: item.description,
+        })));
+        setApiError("");
+      })
+      .catch((error) => active && setApiError(error.message));
+    return () => { active = false; };
+  }, [section, query, sortOrder]);
+
+  const records = apiRecords ?? mockRecords;
 
   const tabRecords = records.filter((record) => {
     if (section === "Expedition Reports") {
@@ -216,6 +251,7 @@ export default function ResourcePage({
             <button onClick={() => setNotice("")}>×</button>
           </div>
         )}
+        {apiError && <div className="notice"><span>Live data unavailable: {apiError}</span><button onClick={() => setApiError("")}>×</button></div>}
         <section className="resource-hero">
           <BackgroundSlideshow className="resource-hero-background" />
           <div>

@@ -1,14 +1,13 @@
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import Icon from "../common/Icon";
 import Brand from "../common/Brand";
 import Sidebar from "../common/Sidebar";
 import BackgroundSlideshow from "../common/BackgroundSlideshow";
 import {
   nav,
-  expeditions,
-  publications,
   aiSections,
 } from "../../data/mockData";
+import { apiFetch } from "../../services/api";
 
 const trendingTopics = [
   ["snow", "Ice Shelf Stability", "124 papers"],
@@ -31,14 +30,30 @@ export default function Home({ username, onLogout, onNavigate }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
+  const [overview, setOverview] = useState(null);
+  const [topics, setTopics] = useState([]);
 
-  const matches = useMemo(
-    () =>
-      [...expeditions, ...publications].filter((x) =>
-        x.join(" ").toLowerCase().includes(query.toLowerCase()),
-      ).length,
-    [query],
-  );
+  useEffect(() => {
+    let active = true;
+    Promise.all([apiFetch("/dashboard/overview"), apiFetch("/dashboard/trending-topics")])
+      .then(([nextOverview, nextTopics]) => {
+        if (!active) return;
+        setOverview(nextOverview);
+        setTopics(nextTopics);
+      })
+      .catch(() => active && setNotice("Live dashboard data is unavailable. Check that the backend is running."));
+    return () => { active = false; };
+  }, []);
+
+  const searchRepository = async () => {
+    if (!query.trim()) return setNotice("Enter a search term first.");
+    try {
+      const result = await apiFetch(`/search?q=${encodeURIComponent(query.trim())}`);
+      setNotice(`${result.total} related result${result.total === 1 ? "" : "s"} found.`);
+    } catch (error) {
+      setNotice(error.message);
+    }
+  };
 
   const choose = (name) => {
     setActive(name);
@@ -116,13 +131,7 @@ export default function Home({ username, onLogout, onNavigate }) {
                 placeholder="Search research, reports, datasets, publications..."
               />
               <button
-                onClick={() =>
-                  setNotice(
-                    query
-                      ? `${matches} related result${matches === 1 ? "" : "s"} found.`
-                      : "Search the PolarNexus repository.",
-                  )
-                }
+                onClick={searchRepository}
               >
                 &nbsp; AI Semantic Search
               </button>
@@ -139,20 +148,20 @@ export default function Home({ username, onLogout, onNavigate }) {
           </div>
           <div className="metrics">
             {[
-              ["file", "1,248", "Research Papers", "12%"],
-              ["flag", "86", "Expedition Reports", "8%"],
-              ["database", "542", "Scientific Datasets", "18%"],
-              ["image", "3,287", "Photos / Videos", "15%"],
-              ["users", "1,032", "Citizen Scientists", "10%"],
+              ["file", overview?.research_papers, "Research Papers"],
+              ["flag", overview?.expedition_reports, "Expedition Reports"],
+              ["database", overview?.scientific_datasets, "Scientific Datasets"],
+              ["image", overview?.photos_videos, "Photos / Videos"],
+              ["users", overview?.citizen_scientists, "Citizen Scientists"],
             ].map(([i, v, l, g]) => (
               <article key={l}>
                 <div className={`metric-icon ${i}`}>
                   <Icon name={i} />
                 </div>
                 <div>
-                  <b>{v}</b>
+                  <b>{v ?? "—"}</b>
                   <span>{l}</span>
-                  <small>↑ {g} from last month</small>
+                  <small>{overview ? "Live database total" : "Loading…"}</small>
                 </div>
               </article>
             ))}
@@ -161,7 +170,7 @@ export default function Home({ username, onLogout, onNavigate }) {
         <section className="dashboard-discovery">
           <h2>🔥 Trending Research Topics <small>(AI Generated)</small></h2>
           <div className="trending-topics">
-            {trendingTopics.map(([icon, title, count]) => (
+            {(topics.length ? topics.map(({ topic, resource_count }) => ["snow", topic, `${resource_count} resources`]) : trendingTopics).map(([icon, title, count]) => (
               <button key={title} onClick={() => setNotice(`${title} selected.`)}>
                 <span className="topic-icon"><Icon name={icon} size={21} /></span>
                 <span><b>{title}</b><small>{count}</small></span>
