@@ -14,6 +14,13 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173"
     storage_bucket: str = "polarnexus-files"
     max_upload_bytes: int = 25 * 1024 * 1024
+    
+    # ai_api_key: str | None = None
+    # ai_model: str = "gpt-5.6-luna"
+    # ai_base_url: str = "https://api.openai.com/v1"
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-2.5-flash"
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
 
     @property
     def cors_origin_list(self) -> list[str]:

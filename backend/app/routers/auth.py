@@ -29,6 +29,10 @@ async def signup(payload: SignupRequest, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
+    print("===== LOGIN DEBUG =====")
+    print("USERNAME_OR_EMAIL:", payload.username_or_email)
+    print("PASSWORD:", repr(payload.password))
+    print("=======================")
     local_user = await db.scalar(select(User).where(or_(User.email == payload.username_or_email, User.username == payload.username_or_email)))
     email = local_user.email if local_user else payload.username_or_email
     auth_result = await supabase_auth.login(email, payload.password)
