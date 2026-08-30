@@ -20,6 +20,45 @@ export async function apiFetch(path, options = {}) {
   return response.status === 204 ? null : response.json();
 }
 
+export async function downloadFile(url, filename) {
+  if (!url) return false;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Download failed (${response.status})`);
+    const blobUrl = URL.createObjectURL(await response.blob());
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 0);
+    return true;
+  } catch {
+    // Some external hosts do not allow browser fetches; preserve a direct download attempt.
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    return false;
+  }
+}
+
+export async function downloadTextFile(content, filename, mimeType = "text/plain") {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 export async function login(username_or_email, password) {
   const result = await apiFetch("/auth/login", { method: "POST", body: JSON.stringify({ username_or_email, password }) });
   localStorage.setItem("polarnexus_access_token", result.access_token);

@@ -13,7 +13,7 @@ router = APIRouter(prefix="/resources", tags=["resources"])
 def apply_filters(statement, q: str | None, resource_type: ResourceType | None, research_area: str | None, author: str | None):
     if q:
         term = f"%{q}%"
-        statement = statement.where(or_(Resource.title.ilike(term), Resource.description.ilike(term), Resource.author.ilike(term), Resource.institution.ilike(term)))
+        statement = statement.where(or_(Resource.title.ilike(term), Resource.description.ilike(term), Resource.author.ilike(term), Resource.institution.ilike(term), Resource.location.ilike(term), Resource.research_area.ilike(term)))
     if resource_type: statement = statement.where(Resource.resource_type == resource_type)
     if research_area: statement = statement.where(Resource.research_area.ilike(f"%{research_area}%"))
     if author: statement = statement.where(or_(Resource.author.ilike(f"%{author}%"), Resource.institution.ilike(f"%{author}%")))

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Icon from "../common/Icon";
 import BackgroundSlideshow from "../common/BackgroundSlideshow";
-import { apiFetch } from "../../services/api";
+import { apiFetch, downloadTextFile } from "../../services/api";
 
 export default function RagAssistantSection({ prompt, setPrompt, setNotice }) {
   const [followUp, setFollowUp] = useState("");
@@ -26,6 +26,12 @@ export default function RagAssistantSection({ prompt, setPrompt, setNotice }) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const exportAnswer = () => {
+    const content = answer || "No live answer is available yet.";
+    downloadTextFile(content, "polarnexus-rag-answer.txt");
+    setNotice("Answer downloaded.");
   };
 
   const sources = [
@@ -303,7 +309,7 @@ export default function RagAssistantSection({ prompt, setPrompt, setNotice }) {
               <button onClick={() => setNotice("Answer summary generated.")}>
                 <Icon name="file" size={15} /> Summarize Answer
               </button>
-              <button onClick={() => setNotice("Answer exported as PDF.")}>
+              <button type="button" onClick={exportAnswer} title="Download answer">
                 <Icon name="download" size={15} /> Export Answer
               </button>
               <button onClick={() => setNotice("Saved to your research collection.")}>

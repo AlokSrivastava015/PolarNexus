@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
-from ..models.entities import Resource, ResourceType, User
+from ..models.entities import CitizenProject, CitizenSubmission, Resource, ResourceType, User
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -11,6 +11,29 @@ router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 async def overview(db: AsyncSession = Depends(get_db)):
     async def count(type_: ResourceType): return await db.scalar(select(func.count()).select_from(Resource).where(Resource.resource_type == type_)) or 0
     return {"research_papers": await count(ResourceType.publication), "expedition_reports": await count(ResourceType.report), "scientific_datasets": await count(ResourceType.dataset), "photos_videos": (await count(ResourceType.photo)) + (await count(ResourceType.video)), "citizen_scientists": await db.scalar(select(func.count()).select_from(User)) or 0}
+
+
+@router.get("/catalog-stats")
+async def catalog_stats(db: AsyncSession = Depends(get_db)):
+    async def count_resources(type_: ResourceType | None = None):
+        statement = select(func.count()).select_from(Resource)
+        if type_:
+            statement = statement.where(Resource.resource_type == type_)
+        return await db.scalar(statement) or 0
+
+    return {
+        "resources": await count_resources(),
+        "reports": await count_resources(ResourceType.report),
+        "datasets": await count_resources(ResourceType.dataset),
+        "publications": await count_resources(ResourceType.publication),
+        "photos": await count_resources(ResourceType.photo),
+        "videos": await count_resources(ResourceType.video),
+        "media": (await count_resources(ResourceType.photo)) + (await count_resources(ResourceType.video)),
+        "outreach": await count_resources(ResourceType.outreach),
+        "users": await db.scalar(select(func.count()).select_from(User)) or 0,
+        "citizen_projects": await db.scalar(select(func.count()).select_from(CitizenProject)) or 0,
+        "observations": await db.scalar(select(func.count()).select_from(CitizenSubmission)) or 0,
+    }
 
 
 @router.get("/trending-topics")

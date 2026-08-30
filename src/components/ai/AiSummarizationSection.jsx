@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Icon from "../common/Icon";
 import BackgroundSlideshow from "../common/BackgroundSlideshow";
+import { downloadTextFile } from "../../services/api";
 
 export default function AiSummarizationSection({ setNotice }) {
   const [urlInput, setUrlInput] = useState("https://example.com/research-report");
@@ -10,6 +11,7 @@ export default function AiSummarizationSection({ setNotice }) {
   const [language, setLanguage] = useState("English");
   const [selectedDocIndex, setSelectedDocIndex] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
+  const summaryText = "AI Summary\n\nThis summary captures the key findings, methods and conclusions from the selected polar research document.";
 
   const docs = [
     {
@@ -323,11 +325,11 @@ export default function AiSummarizationSection({ setNotice }) {
                 <button onClick={() => setNotice("Summary copied to clipboard!")}>
                   <Icon name="copy" size={14} /> Copy Text
                 </button>
-                <button onClick={() => setNotice("Downloading PDF summary...")}>
-                  <Icon name="download" size={14} /> Download PDF
+                <button onClick={() => downloadTextFile(summaryText, "polarnexus-summary.txt")}>
+                  <Icon name="download" size={14} /> Download TXT
                 </button>
-                <button onClick={() => setNotice("Downloading DOCX summary...")}>
-                  <Icon name="download" size={14} /> Download DOCX
+                <button onClick={() => downloadTextFile(summaryText, "polarnexus-summary.txt")}>
+                  <Icon name="download" size={14} /> Download TXT
                 </button>
               </div>
             </div>

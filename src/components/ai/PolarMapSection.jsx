@@ -13,7 +13,7 @@ const stationPins = [
 
 const layers = ["Sea Ice Concentration", "Surface Temperature (°C)", "Ice Shelf Extent", "Glacier Velocity (m/yr)", "Topography (Elevation)", "Ocean Chlorophyll"];
 
-export default function PolarMapSection({ setNotice }) {
+export default function PolarMapSection({ setNotice, onNavigate }) {
   const [zoom, setZoom] = useState(1);
   const [selectedPin, setSelectedPin] = useState(stationPins[0]);
   const [hoveredPin, setHoveredPin] = useState(null);
@@ -22,7 +22,7 @@ export default function PolarMapSection({ setNotice }) {
   const toggleLayer = (layer) => setActiveLayers((current) => current.includes(layer) ? current.filter((item) => item !== layer) : [...current, layer]);
   const reset = () => { setFilters({ indian: true, international: true, camps: true }); setActiveLayers(layers.slice(0, 2)); setZoom(1); setHoveredPin(null); setSelectedPin(stationPins[0]); setNotice("Map filters and layers reset."); };
   const visiblePins = stationPins.filter((pin) => pin.type.includes("Indian") ? filters.indian : pin.type.includes("International") ? filters.international : filters.camps);
-  const openStation = (pin) => { setSelectedPin(pin); setNotice(`${pin.name} details and AI summary opened.`); };
+  const openStation = (pin) => onNavigate("Polar Research Repository", pin.name);
 
   return <section className="polar-map-section">
     <section className="map-hero"><BackgroundSlideshow className="map-hero-slideshow" /><h1>Polar Map <span>✦</span></h1><p>Explore Antarctic stations, research areas, environmental layers and satellite insights across the polar regions.</p><div className="map-metrics">{[["snow", "27", "Research Stations", "12 Indian · 15 International"], ["database", "1,248", "Active Datasets", "↑ 8% this month"], ["flag", "36", "Expeditions Mapped", "Since 1981"], ["spark", "58", "Research Areas", "Geospatial layers"], ["book", "2,340", "Publications Linked", "Across the map"], ["image", "6", "Satellite Overlays", "Live & Historical"]].map(([icon, value, label, sub]) => <article key={label}><Icon name={icon} /><span><small>{label}</small><b>{value}</b><em>{sub}</em></span></article>)}</div></section>

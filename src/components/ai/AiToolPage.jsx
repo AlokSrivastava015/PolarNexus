@@ -86,7 +86,7 @@ export default function AiToolPage({
         )}
         {section === "Content Studio" && <ContentStudioSection setNotice={setNotice} />}
         {section === "Research Insights" && <ResearchInsightsSection setNotice={setNotice} />}
-        {section === "Polar Map" && <PolarMapSection setNotice={setNotice} />}
+        {section === "Polar Map" && <PolarMapSection setNotice={setNotice} onNavigate={onNavigate} />}
         {section === "Knowledge Graph" && <KnowledgeGraphSection setNotice={setNotice} />}
       </div>
     </div>

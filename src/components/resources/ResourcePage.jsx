@@ -10,10 +10,11 @@ import {
   recordTitles,
   aiSections,
 } from "../../data/mockData";
-import { apiFetch } from "../../services/api";
+import { apiFetch, downloadFile } from "../../services/api";
 
 export default function ResourcePage({
   section,
+  initialQuery = "",
   username,
   onHome,
   onLogout,
@@ -32,6 +33,8 @@ export default function ResourcePage({
   const [showCollections, setShowCollections] = useState(false);
   const [showCollectionModal, setShowCollectionModal] = useState(false);
   const [apiRecords, setApiRecords] = useState(null);
+  const [apiTotal, setApiTotal] = useState(null);
+  const [catalogStats, setCatalogStats] = useState(null);
   const [apiError, setApiError] = useState("");
   const [collections, setCollections] = useState(() => {
     try {
@@ -51,9 +54,17 @@ export default function ResourcePage({
 
   useEffect(() => {
     setTab(config.tabs[0]);
-    setQuery("");
+    setQuery(initialQuery);
     setShowFilters(false);
-  }, [section, config.tabs]);
+  }, [section, config.tabs, initialQuery]);
+
+  useEffect(() => {
+    let active = true;
+    apiFetch("/dashboard/catalog-stats")
+      .then((stats) => active && setCatalogStats(stats))
+      .catch(() => active && setCatalogStats(null));
+    return () => { active = false; };
+  }, []);
 
   const mockRecords = useMemo(
     () =>
@@ -102,8 +113,13 @@ export default function ResourcePage({
     if (type) params.set("resource_type", type);
     if (query.trim()) params.set("q", query.trim());
     apiFetch(`/resources?${params}`)
-      .then(({ items }) => {
+      .then(({ items, total }) => {
         if (!active) return;
+        if (!items.length && initialQuery && query === initialQuery) {
+          setQuery("");
+          return;
+        }
+        setApiTotal(total);
         setApiRecords(items.map((item, index) => ({
           id: item.id,
           title: item.title,
@@ -112,6 +128,9 @@ export default function ResourcePage({
           date: item.publication_date ? new Date(`${item.publication_date}T00:00:00`).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "Date unavailable",
           size: item.metadata?.size || "—",
           description: item.description,
+          location: item.location || "",
+          fileUrl: item.file_url,
+          externalUrl: item.external_url,
         })));
         setApiError("");
       })
@@ -120,6 +139,35 @@ export default function ResourcePage({
   }, [section, query, sortOrder]);
 
   const records = apiRecords ?? mockRecords;
+  const downloadRecord = (record) => {
+    const url = record.fileUrl || record.externalUrl;
+    if (!url) {
+      setNotice(`${record.title} has no downloadable file attached yet.`);
+      return;
+    }
+    downloadFile(url, `${record.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.download`);
+    setNotice(`${record.title} download started.`);
+  };
+  const downloadSelected = () => {
+    const selected = records.filter((record) => selectedRecords.includes(record.title));
+    const downloadable = selected.filter((record) => record.fileUrl || record.externalUrl);
+    downloadable.forEach(downloadRecord);
+    if (!downloadable.length) setNotice("No selected resources have downloadable files attached yet.");
+  };
+  const liveStats = {
+    "Polar Research Repository": [
+      ["file", catalogStats?.reports, "Reports"],
+      ["database", catalogStats?.datasets, "Datasets"],
+      ["book", catalogStats?.publications, "Publications"],
+      ["image", catalogStats?.media, "Media Files"],
+    ],
+    "Expedition Reports": [["file", catalogStats?.reports, "Total Reports"]],
+    "Scientific Datasets": [["database", catalogStats?.datasets, "Total Datasets"]],
+    Publications: [["book", catalogStats?.publications, "Total Publications"]],
+    "Photos / Videos": [["image", catalogStats?.photos, "Photos"], ["chart", catalogStats?.videos, "Videos"]],
+    "Outreach & Media": [["megaphone", catalogStats?.outreach, "Outreach Items"]],
+    "Citizen Science": [["users", catalogStats?.citizen_projects, "Active Projects"], ["file", catalogStats?.observations, "Observations"], ["users", catalogStats?.users, "Contributors"]],
+  }[section] ?? [];
 
   const tabRecords = records.filter((record) => {
     if (section === "Expedition Reports") {
@@ -176,7 +224,7 @@ export default function ResourcePage({
 
   const searchTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
   const filtered = tabRecords.filter((record) => {
-    const searchableText = [record.title, record.type, record.date, record.size]
+    const searchableText = [record.title, record.type, record.date, record.size, record.location]
       .join(" ")
       .toLowerCase();
 
@@ -273,13 +321,13 @@ export default function ResourcePage({
               </button>
             </div>
             <div className="resource-stats">
-              {config.stats.map(([icon, value, label]) => (
+              {(liveStats.length ? liveStats : config.stats).map(([icon, value, label]) => (
                 <article key={label}>
                   <div>
                     <Icon name={icon} size={25} />
                   </div>
                   <span>
-                    <b>{value}</b>
+                    <b>{value == null ? "Loading…" : value.toLocaleString()}</b>
                     <small>{label}</small>
                   </span>
                 </article>
@@ -310,13 +358,13 @@ export default function ResourcePage({
               </button>
               <div className="resource-tab-actions">
                 <button onClick={openCollectionModal}>Create Collection</button>
-                <button onClick={() => setNotice(`${selectedRecords.length || sortedRecords.length} resource${(selectedRecords.length || sortedRecords.length) === 1 ? '' : 's'} prepared for download.`)}>Download Selected</button>
+                <button onClick={downloadSelected}>Download Selected</button>
               </div>
             </div>
             <div className="result-toolbar">
               <span>
                 Showing {sortedRecords.length ? 1 : 0}–{sortedRecords.length} of{" "}
-                {config.count} {config.noun}
+                {apiTotal == null ? "Loading…" : apiTotal.toLocaleString()} {config.noun}
               </span>
               <div className="result-controls">
                 <label className="sort-control">
@@ -392,7 +440,8 @@ export default function ResourcePage({
                 </div>
                 <button
                   className="row-action"
-                  onClick={() => setNotice(`${record.title} download started.`)}
+                  onClick={() => downloadRecord(record)}
+                  title="Download resource"
                 >
                   <Icon name="download" size={19} />
                 </button>
@@ -434,8 +483,8 @@ export default function ResourcePage({
         </section>
       </div>
       {detailRecord && <div className="resource-detail-layer" role="dialog" aria-modal="true" aria-label={`${detailRecord.title} details`}>
-        <div className="detail-sheet"><button className="detail-close" onClick={() => setDetailRecord(null)} aria-label="Close details">×</button><button className="detail-back" onClick={() => setDetailRecord(null)}>← Back to {section}</button>
-          <div className="detail-header"><div><h1>{detailRecord.title} <em>{detailRecord.type}</em></h1><dl><div><dt>Authors</dt><dd>PolarNexus Research Team</dd></div><div><dt>Published</dt><dd>{detailRecord.date}</dd></div><div><dt>Keywords</dt><dd>{section}, Antarctica, Climate Research, Polar Science</dd></div></dl><div className="detail-primary-actions"><button onClick={() => setNotice(`${detailRecord.title} download started.`)}><Icon name="download" size={18}/> View / Download</button><button onClick={() => setNotice(`${detailRecord.title} added to your library.`)}>Add to Library</button></div></div><div className="detail-image visual-thumb"><Icon name="image" size={38}/></div></div>
+          <div className="detail-sheet"><button className="detail-close" onClick={() => setDetailRecord(null)} aria-label="Close details">×</button><button className="detail-back" onClick={() => setDetailRecord(null)}>← Back to {section}</button>
+          <div className="detail-header"><div><h1>{detailRecord.title} <em>{detailRecord.type}</em></h1><dl><div><dt>Authors</dt><dd>PolarNexus Research Team</dd></div><div><dt>Published</dt><dd>{detailRecord.date}</dd></div><div><dt>Keywords</dt><dd>{section}, Antarctica, Climate Research, Polar Science</dd></div></dl><div className="detail-primary-actions"><button onClick={() => downloadRecord(detailRecord)}><Icon name="download" size={18}/> Download</button><button onClick={() => setNotice(`${detailRecord.title} added to your library.`)}>Add to Library</button></div></div><div className="detail-image visual-thumb"><Icon name="image" size={38}/></div></div>
           <div className="detail-body"><main><div className="detail-tabs">{["Overview","Details","Citations","Related Papers","Media"].map(item => <button className={detailTab === item ? 'active' : ''} onClick={() => setDetailTab(item)} key={item}>{item}</button>)}</div>{detailTab === 'Overview' ? <><article className="detail-card"><h2>Abstract</h2><p>This {detailRecord.type.toLowerCase()} presents polar research evidence from field observations, satellite records and long-term scientific monitoring. It highlights meaningful environmental change and supports future research decisions across the Antarctic region.</p><button onClick={() => setNotice('Full abstract opened.')}>Show More</button></article><article className="detail-card"><h2>Key Findings <small>(AI Extracted)</small></h2><ul><li>Observed polar conditions show significant change across the study period.</li><li>Antarctic ecosystems and field operations benefit from continued monitoring.</li><li>Long-term evidence supports informed climate and conservation planning.</li></ul></article></> : <article className="detail-card"><h2>{detailTab}</h2><p>Related information for <b>{detailRecord.title}</b> is available in this record. Use the AI actions to generate additional research outputs.</p></article>}</main><aside className="detail-ai-actions"><h2>AI Actions</h2>{[["spark","Summarize"],["message","Chat with Paper"],["file","Generate Blog"],["megaphone","Generate News"],["users","Generate LinkedIn Post"],["globe","Translate"]].map(([icon,label]) => <button onClick={() => setNotice(`${label} generated for ${detailRecord.title}.`)} key={label}><Icon name={icon} size={20}/><span>{label}</span><Icon name="arrow" size={17}/></button>)}</aside></div>
         </div></div>}
       <CollectionModal

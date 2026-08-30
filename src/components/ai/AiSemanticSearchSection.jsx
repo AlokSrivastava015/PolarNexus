@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 import Icon from "../common/Icon";
 import BackgroundSlideshow from "../common/BackgroundSlideshow";
+import { downloadTextFile } from "../../services/api";
 
 export default function AiSemanticSearchSection({ query, setQuery, setNotice }) {
   const [activeTab, setActiveTab] = useState("All Results (156)");
   const [viewMode, setViewMode] = useState("list");
   const [bookmarked, setBookmarked] = useState(new Set());
+  const downloadResult = (item) => {
+    downloadTextFile(`${item.title}\n\n${item.desc}`, `${item.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.txt`);
+    setNotice(`Downloaded ${item.title}.`);
+  };
 
   const toggleBookmark = (id) => {
     setBookmarked((prev) => {
@@ -232,7 +237,7 @@ export default function AiSemanticSearchSection({ query, setQuery, setNotice }) 
                     </button>
                     <button
                       className="action-btn"
-                      onClick={() => setNotice(`Downloading ${item.title}...`)}
+                      onClick={() => downloadResult(item)}
                       title="Download"
                     >
                       <Icon name="download" size={16} />
