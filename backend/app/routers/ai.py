@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..config import get_settings
 from ..database import get_db
-from ..schemas.ai import ContentRequest, RagRequest, SemanticSearchRequest
+from ..schemas.ai import ContentRequest, RagRequest, ResourceActionRequest, SemanticSearchRequest, TranslationRequest
 from ..schemas.resources import Page
 from ..services.ai_service import ai_service
 from ..utils.dependencies import current_user
@@ -31,3 +31,13 @@ async def summarize(file: UploadFile | None = File(default=None), summary_length
 @router.post("/content/generate")
 async def generate_content(payload: ContentRequest, _: object = Depends(current_user)):
     return await ai_service.generate_content(**payload.model_dump())
+
+
+@router.post("/resource-action")
+async def resource_action(payload: ResourceActionRequest, _: object = Depends(current_user)):
+    return await ai_service.resource_action(**payload.model_dump())
+
+
+@router.post("/translate")
+async def translate(payload: TranslationRequest, _: object = Depends(current_user)):
+    return await ai_service.translate(**payload.model_dump())

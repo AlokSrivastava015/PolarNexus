@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import Icon from "../common/Icon";
 import Brand from "../common/Brand";
 import Sidebar from "../common/Sidebar";
@@ -10,7 +10,7 @@ import {
   recordTitles,
   aiSections,
 } from "../../data/mockData";
-import { apiFetch, downloadFile } from "../../services/api";
+import { apiFetch, downloadFile, runResourceAiAction, translateAiContent } from "../../services/api";
 
 export default function ResourcePage({
   section,
@@ -36,6 +36,14 @@ export default function ResourcePage({
   const [apiTotal, setApiTotal] = useState(null);
   const [catalogStats, setCatalogStats] = useState(null);
   const [apiError, setApiError] = useState("");
+  const [aiAction, setAiAction] = useState("");
+  const [aiInstructions, setAiInstructions] = useState("");
+  const [aiLanguage, setAiLanguage] = useState("Hindi");
+  const [aiOutput, setAiOutput] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiChatHistory, setAiChatHistory] = useState([]);
+  const aiRequestInFlight = useRef(false);
   const [collections, setCollections] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("polarnexus-collections") || "[]");
@@ -131,6 +139,7 @@ export default function ResourcePage({
           location: item.location || "",
           fileUrl: item.file_url,
           externalUrl: item.external_url,
+          resource: item,
         })));
         setApiError("");
       })
@@ -243,7 +252,36 @@ export default function ResourcePage({
   };
   const handleSearchChange = (event) => setQuery(event.target.value);
   const toggleRecord = (title) => setSelectedRecords((current) => current.includes(title) ? current.filter((item) => item !== title) : [...current, title]);
-  const openDetail = (record) => { setDetailRecord(record); setDetailTab("Overview"); };
+  const openDetail = (record) => { setDetailRecord(record); setDetailTab("Overview"); setAiAction(""); setAiInstructions(""); setAiOutput(""); setAiError(""); setAiChatHistory([]); };
+  const runAiAction = async (action) => {
+    if (!detailRecord?.id) {
+      setAiError("This action needs a resource saved in the live database. Please select a live resource.");
+      return;
+    }
+    if (aiLoading || aiRequestInFlight.current) return;
+    aiRequestInFlight.current = true;
+    setAiAction(action); setAiLoading(true); setAiError(""); setAiOutput("");
+    try {
+      let response;
+      if (action === "chat") {
+        if (!aiInstructions.trim()) throw new Error("Enter a question about this paper first.");
+        const question = aiInstructions.trim();
+        response = await apiFetch("/ai/rag/query", { method: "POST", body: JSON.stringify({ question, resource_ids: [detailRecord.id], history: aiChatHistory }) });
+        setAiOutput(response.answer || "");
+        setAiChatHistory((history) => [...history, { role: "user", content: question }, { role: "assistant", content: response.answer || "" }]);
+        setAiInstructions("");
+      } else if (action === "translate") {
+        response = await translateAiContent({ resource_id: detailRecord.id, target_language: aiLanguage });
+        setAiOutput(response.content || "");
+      } else {
+        response = await runResourceAiAction({ resource_id: detailRecord.id, action, instructions: aiInstructions.trim() || null });
+        setAiOutput(response.content || "");
+      }
+    } catch (error) {
+      console.error("[PolarNexus AI action] failed", { action, error });
+      setAiError(error.message || "AI action failed.");
+    } finally { aiRequestInFlight.current = false; setAiLoading(false); }
+  };
   const openCollectionModal = () => {
     setShowFilters(false);
     setShowCollectionModal(true);
@@ -485,7 +523,7 @@ export default function ResourcePage({
       {detailRecord && <div className="resource-detail-layer" role="dialog" aria-modal="true" aria-label={`${detailRecord.title} details`}>
           <div className="detail-sheet"><button className="detail-close" onClick={() => setDetailRecord(null)} aria-label="Close details">×</button><button className="detail-back" onClick={() => setDetailRecord(null)}>← Back to {section}</button>
           <div className="detail-header"><div><h1>{detailRecord.title} <em>{detailRecord.type}</em></h1><dl><div><dt>Authors</dt><dd>PolarNexus Research Team</dd></div><div><dt>Published</dt><dd>{detailRecord.date}</dd></div><div><dt>Keywords</dt><dd>{section}, Antarctica, Climate Research, Polar Science</dd></div></dl><div className="detail-primary-actions"><button onClick={() => downloadRecord(detailRecord)}><Icon name="download" size={18}/> Download</button><button onClick={() => setNotice(`${detailRecord.title} added to your library.`)}>Add to Library</button></div></div><div className="detail-image visual-thumb"><Icon name="image" size={38}/></div></div>
-          <div className="detail-body"><main><div className="detail-tabs">{["Overview","Details","Citations","Related Papers","Media"].map(item => <button className={detailTab === item ? 'active' : ''} onClick={() => setDetailTab(item)} key={item}>{item}</button>)}</div>{detailTab === 'Overview' ? <><article className="detail-card"><h2>Abstract</h2><p>This {detailRecord.type.toLowerCase()} presents polar research evidence from field observations, satellite records and long-term scientific monitoring. It highlights meaningful environmental change and supports future research decisions across the Antarctic region.</p><button onClick={() => setNotice('Full abstract opened.')}>Show More</button></article><article className="detail-card"><h2>Key Findings <small>(AI Extracted)</small></h2><ul><li>Observed polar conditions show significant change across the study period.</li><li>Antarctic ecosystems and field operations benefit from continued monitoring.</li><li>Long-term evidence supports informed climate and conservation planning.</li></ul></article></> : <article className="detail-card"><h2>{detailTab}</h2><p>Related information for <b>{detailRecord.title}</b> is available in this record. Use the AI actions to generate additional research outputs.</p></article>}</main><aside className="detail-ai-actions"><h2>AI Actions</h2>{[["spark","Summarize"],["message","Chat with Paper"],["file","Generate Blog"],["megaphone","Generate News"],["users","Generate LinkedIn Post"],["globe","Translate"]].map(([icon,label]) => <button onClick={() => setNotice(`${label} generated for ${detailRecord.title}.`)} key={label}><Icon name={icon} size={20}/><span>{label}</span><Icon name="arrow" size={17}/></button>)}</aside></div>
+          <div className="detail-body"><main><div className="detail-tabs">{["Overview","Details","Citations","Related Papers","Media"].map(item => <button className={detailTab === item ? 'active' : ''} onClick={() => setDetailTab(item)} key={item}>{item}</button>)}</div>{detailTab === 'Overview' ? <><article className="detail-card"><h2>Abstract</h2><p>{detailRecord.description || `This ${detailRecord.type.toLowerCase()} presents polar research evidence from field observations, satellite records and long-term scientific monitoring.`}</p></article><article className="detail-card"><h2>Key Findings</h2><p>Use an AI action to generate a resource-specific summary, article, post, translation, or answer.</p></article></> : <article className="detail-card"><h2>{detailTab}</h2><p>Related information for <b>{detailRecord.title}</b> is available in this record.</p></article>}{aiAction && <article className="detail-card"><h2>{aiAction === "chat" ? "Chat with Paper" : `AI ${aiAction}`}</h2>{aiAction === "chat" && <label>Your question<textarea value={aiInstructions} onChange={(e) => setAiInstructions(e.target.value)} placeholder="Ask a question about this paper"/></label>}{aiAction === "translate" && <label>Target language<select value={aiLanguage} onChange={(e) => setAiLanguage(e.target.value)}><option>Hindi</option><option>English</option><option>Spanish</option><option>French</option></select></label>} {aiAction !== "chat" && aiAction !== "translate" && <label>Additional instructions (optional)<textarea value={aiInstructions} onChange={(e) => setAiInstructions(e.target.value)} placeholder="Add tone, audience, or format guidance"/></label>}<button type="button" disabled={aiLoading} onClick={() => runAiAction(aiAction)}>{aiLoading ? "Generating…" : "Generate"}</button>{aiError && <p className="login-error" role="alert">{aiError}</p>}{aiAction === "chat" && aiChatHistory.map((message, index) => <div className="rag-live-answer" style={{whiteSpace:"pre-wrap", maxHeight:"480px", overflowY:"auto"}} key={`${message.role}-${index}`}>{message.content}</div>)}{aiAction !== "chat" && aiOutput && <div className="rag-live-answer" style={{whiteSpace:"pre-wrap", maxHeight:"480px", overflowY:"auto"}}>{aiOutput}</div>}</article>}</main><aside className="detail-ai-actions"><h2>AI Actions</h2>{[["spark","Summarize","summarize"],["message","Chat with Paper","chat"],["file","Generate Blog","blog"],["megaphone","Generate News","news"],["users","Generate LinkedIn Post","linkedin"],["globe","Translate","translate"]].map(([icon,label,action]) => <button type="button" disabled={aiLoading} onClick={() => { setAiAction(action); setAiOutput(""); setAiError(""); if (action !== "chat" && action !== "translate") runAiAction(action); }} key={label}><Icon name={icon} size={20}/><span>{aiLoading && aiAction === action ? "Generating…" : label}</span><Icon name="arrow" size={17}/></button>)}</aside></div>
         </div></div>}
       <CollectionModal
         isOpen={showCollectionModal}

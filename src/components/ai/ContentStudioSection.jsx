@@ -1,24 +1,52 @@
 import React, { useState } from "react";
 import Icon from "../common/Icon";
 import BackgroundSlideshow from "../common/BackgroundSlideshow";
+import { generateAiContent } from "../../services/api";
 
 const templates = [
-  ["file", "Research Summary", "Summarize papers, reports, datasets"], ["edit", "Blog Post", "Generate engaging blog articles"],
-  ["megaphone", "Social Media Post", "Create posts for X, LinkedIn, Facebook"], ["chart", "Presentation Slide", "Generate slide content"],
-  ["file", "Press Release", "Official announcements & updates"], ["image", "Video Script", "Scripts for educational videos"],
+  ["file", "Research Article Summary", "Summarize papers, reports, datasets"],
+  ["edit", "Blog Post", "Generate engaging blog articles"],
+  ["megaphone", "News Article", "Generate factual news articles"],
+  ["users", "LinkedIn Post", "Create LinkedIn-ready content"],
 ];
-const recent = ["Sea Ice Trends in East Antarctica", "Bharati Station – 41st Expedition Highlights", "Antarctic Krill and Ecosystem Role", "Climate Change Impact on Polar Regions"];
 
 export default function ContentStudioSection({ setNotice }) {
-  const [contentType, setContentType] = useState("Research Article Summary");
-  const [topic, setTopic] = useState("Impact of Sea Ice Loss on Adélie Penguin Colonies in East Antarctica");
-  const [context, setContext] = useState("Sea ice decline trends, breeding success rates, chick survival, long-term monitoring data from 2000–2024, implications for ecosystem and conservation.");
-  const [generated, setGenerated] = useState(true);
-  const [copied, setCopied] = useState(false);
-  const generate = () => { setGenerated(true); setNotice(`New ${contentType.toLowerCase()} generated from your topic.`); };
-  const useTemplate = (name) => { setContentType(name); setNotice(`${name} template selected.`); };
+  const [contentType, setContentType] = useState("Blog Post");
+  const [topic, setTopic] = useState("");
+  const [context, setContext] = useState("");
+  const [tone, setTone] = useState("Professional");
+  const [language, setLanguage] = useState("English");
+  const [generated, setGenerated] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const generate = async () => {
+    if (!topic.trim() || loading) return;
+    setLoading(true); setError("");
+    try {
+      const response = await generateAiContent({ content_type: contentType, topic: topic.trim(), tone, language, instructions: context.trim() || null });
+      setGenerated(response.content || "");
+      setNotice("AI content generated successfully.");
+    } catch (requestError) {
+      setError(requestError.message || "Unable to generate content.");
+    } finally { setLoading(false); }
+  };
+
+  const copy = async () => {
+    if (!generated) return;
+    await navigator.clipboard?.writeText(generated);
+    setNotice("Generated content copied.");
+  };
+
   return <section className="content-studio-section">
-    <section className="studio-hero"><BackgroundSlideshow className="studio-hero-slideshow"/><div><h1>Content Generation <span>✦</span></h1><p>Create high-quality content for research communication, outreach, presentations and social media using AI.</p><div className="studio-categories">{[["file","Research Content","Summaries, articles, explanations"],["users","Outreach Content","Blogs, social media, stories"],["spark","Academic Content","Papers, reports, presentations"],["image","Multimedia Content","Captions, scripts, descriptions"]].map(([icon,title,text])=><article key={title}><Icon name={icon}/><span><b>{title}</b><small>{text}</small></span></article>)}</div></div></section>
-    <section className="studio-grid"><div><article className="studio-form"><h2>Create New Content</h2><label>Content Type<select value={contentType} onChange={e=>setContentType(e.target.value)}>{["Research Article Summary","Blog Post","Social Media Post","Presentation Slide","Press Release","Video Script"].map(item=><option key={item}>{item}</option>)}</select></label><label>Topic / Title<input value={topic} onChange={e=>setTopic(e.target.value)}/></label><label>Key Points / Context <small>(Optional)</small><textarea value={context} onChange={e=>setContext(e.target.value)} maxLength="2000"/><i>{context.length} / 2000</i></label><div className="studio-options"><label>Tone<select><option>Academic</option><option>Friendly</option><option>Professional</option></select></label><label>Length<select><option>Medium (~250 words)</option><option>Short</option><option>Detailed</option></select></label><label>Language<select><option>English</option><option>Hindi</option></select></label><button onClick={generate}>✦ &nbsp; Generate Content</button></div></article><article className="popular-topics"><h2>Popular Topics</h2>{["Sea Ice Decline","Penguin Ecology","Climate Change","Glaciology","Oceanography","Biodiversity","Station Operations"].map(topicName=><button onClick={()=>setTopic(topicName)} key={topicName}>✦ &nbsp;{topicName}</button>)}</article><p className="studio-note">♢ &nbsp; AI-generated content is based on available data and may require review. Please verify critical information before publication.</p></div><div><article className="generated-preview"><header><h2>AI Generated Preview</h2><button onClick={()=>{navigator.clipboard?.writeText(topic);setCopied(true);setNotice('Content copied to clipboard.')}}><Icon name="file" size={15}/>{copied?'Copied':'Copy'}</button></header>{generated?<><h3>{topic} – {contentType}</h3><p>Long-term observations from 2000 to 2024 reveal a significant decline in sea ice extent in East Antarctica, which has directly influenced the breeding success and chick survival rates of Adélie penguins.</p><p>Reduced sea ice duration shortens the foraging window, leading to lower prey availability and increased energy expenditure for adults. Our analysis shows a measurable decrease in breeding success across the last two decades.</p><p>These findings highlight the urgent need for continued monitoring and conservation strategies to mitigate the impacts of climate change on Antarctic ecosystems.</p><small>246 words</small><div className="preview-feedback"><button onClick={()=>setNotice('Thanks for your feedback!')}>♧</button><button onClick={()=>setNotice('Thanks for your feedback!')}>♢</button></div></>:<p>Enter a topic and generate AI content to see a preview.</p>}<button className="add-repository" onClick={()=>setNotice('Generated content added to the repository.')}>♧ &nbsp; Add to Repository</button></article></div><aside><article className="studio-sidebar-card"><header><h2>Content Templates</h2><button onClick={()=>setNotice('All templates opened.')}>View All</button></header>{templates.map(([icon,name,text])=><button className="template-item" onClick={()=>useTemplate(name)} key={name}><Icon name={icon}/><span><b>{name}</b><small>{text}</small></span></button>)}</article><article className="studio-sidebar-card"><header><h2>Recent Generations</h2><button onClick={()=>setNotice('Recent generations opened.')}>View All</button></header>{recent.map((item,index)=><button className="recent-generation" onClick={()=>{setTopic(item);setGenerated(true)}} key={item}><Icon name={["file","edit","megaphone","chart"][index]}/><span><b>{item}</b><small>{index + 1} day{index?'s':''} ago</small></span></button>)}</article><article className="studio-sidebar-card studio-library"><h2>My Content Library</h2><div><span><b>42</b>Documents</span><span><b>18</b>Outreach Posts</span><span><b>11</b>Presentations</span></div><button onClick={()=>setNotice('Content library opened.')}>Go to Library →</button></article></aside></section>
+    <section className="studio-hero"><BackgroundSlideshow className="studio-hero-slideshow"/><div><h1>Content Generation <span>✦</span></h1><p>Create research communication and outreach content using the connected AI service.</p></div></section>
+    <section className="studio-grid"><div><article className="studio-form"><h2>Create New Content</h2>
+      <label>Content Type<select value={contentType} onChange={(e) => setContentType(e.target.value)}>{templates.map(([, name]) => <option key={name}>{name}</option>)}</select></label>
+      <label>Topic / Title<input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Enter a research topic" /></label>
+      <label>Key Points / Context <small>(Optional)</small><textarea value={context} onChange={(e) => setContext(e.target.value)} maxLength="4000" /><i>{context.length} / 4000</i></label>
+      <div className="studio-options"><label>Tone<select value={tone} onChange={(e) => setTone(e.target.value)}><option>Academic</option><option>Friendly</option><option>Professional</option></select></label><label>Language<select value={language} onChange={(e) => setLanguage(e.target.value)}><option>English</option><option>Hindi</option><option>Spanish</option></select></label><button type="button" disabled={loading || !topic.trim()} onClick={generate}>✦ &nbsp; {loading ? "Generating…" : "Generate Content"}</button></div>
+      {error && <p className="login-error" role="alert">{error}</p>}
+    </article><article className="popular-topics"><h2>Content Templates</h2>{templates.map(([icon, name, text]) => <button type="button" onClick={() => setContentType(name)} key={name}><Icon name={icon} size={15}/><span><b>{name}</b><small>{text}</small></span></button>)}</article></div>
+    <div><article className="generated-preview"><header><h2>AI Generated Preview</h2><button type="button" disabled={!generated} onClick={copy}><Icon name="copy" size={15}/>Copy</button></header>{loading && <p>Generating content…</p>}{generated && <div className="rag-live-answer" style={{whiteSpace:"pre-wrap", maxHeight:"520px", overflowY:"auto"}}>{generated}</div>}{!generated && !loading && <p>Enter a topic and generate AI content to see the real response here.</p>}</article></div></section>
   </section>;
 }
