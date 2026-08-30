@@ -1,10 +1,32 @@
 import React, { useState } from "react";
 import Icon from "../common/Icon";
 import BackgroundSlideshow from "../common/BackgroundSlideshow";
+import { apiFetch } from "../../services/api";
 
 export default function RagAssistantSection({ prompt, setPrompt, setNotice }) {
   const [followUp, setFollowUp] = useState("");
   const [liked, setLiked] = useState(null);
+  const [answer, setAnswer] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [requestError, setRequestError] = useState("");
+
+  const askAssistant = async (question) => {
+    const cleanQuestion = question.trim();
+    if (!cleanQuestion || isLoading) return;
+    setIsLoading(true);
+    setRequestError("");
+    try {
+      const response = await apiFetch("/ai/rag/query", {
+        method: "POST",
+        body: JSON.stringify({ question: cleanQuestion }),
+      });
+      setAnswer(response.answer || "The AI returned an empty answer.");
+    } catch (error) {
+      setRequestError(error.message || "Unable to generate an answer.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const sources = [
     { id: 1, title: "41st Indian Scientific Expedition Final Report (2023-24)", type: "PDF", size: "8.4 MB", color: "#ef4444" },
@@ -46,9 +68,11 @@ export default function RagAssistantSection({ prompt, setPrompt, setNotice }) {
             />
             <button
               className="send-prompt-btn"
-              onClick={() => setNotice("Retrieving relevant polar documents & generating response...")}
+              type="button"
+              disabled={isLoading || !prompt.trim()}
+              onClick={() => askAssistant(prompt)}
             >
-              <Icon name="send" size={18} />
+              {isLoading ? "…" : <Icon name="send" size={18} />}
             </button>
           </div>
         </div>
@@ -70,6 +94,11 @@ export default function RagAssistantSection({ prompt, setPrompt, setNotice }) {
             </div>
 
             <div className="answer-body-content">
+              {isLoading && <p className="lead-paragraph">Generating your answer…</p>}
+              {requestError && <p className="login-error" role="alert">{requestError}</p>}
+              {answer && <div className="rag-live-answer" style={{ whiteSpace: "pre-wrap" }}>{answer}</div>}
+              {!answer && !isLoading && !requestError && (
+              <>
               <p className="lead-paragraph">
                 The 41st Indian Scientific Expedition to Antarctica (2023–24)
                 achieved significant progress across multiple scientific domains. The key findings are:
@@ -160,6 +189,8 @@ export default function RagAssistantSection({ prompt, setPrompt, setNotice }) {
               <p className="disclaimer-text">
                 AI-generated answer based on available documents. Please verify critical information from original sources.
               </p>
+              </>
+              )}
             </div>
           </article>
 
@@ -175,11 +206,12 @@ export default function RagAssistantSection({ prompt, setPrompt, setNotice }) {
               </button>
               <button
                 className="send-followup-btn"
-                onClick={() => {
-                  if (followUp) {
-                    setNotice("Follow-up submitted.");
-                    setFollowUp("");
-                  }
+                type="button"
+                disabled={isLoading || !followUp.trim()}
+                onClick={async () => {
+                  const question = followUp.trim();
+                  await askAssistant(question);
+                  if (question) setFollowUp("");
                 }}
               >
                 <Icon name="send" size={18} />

@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8001/api/v1";
+// In local development this relative URL is forwarded to FastAPI by Vite.
+// Deployments may override it with VITE_API_BASE_URL.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
 export async function apiFetch(path, options = {}) {
   const token = localStorage.getItem("polarnexus_access_token");
@@ -11,7 +13,10 @@ export async function apiFetch(path, options = {}) {
   } catch {
     throw new Error(`Unable to reach the PolarNexus API at ${API_BASE_URL}. Start the backend and check backend/.env.`);
   }
-  if (!response.ok) throw new Error((await response.json().catch(() => ({}))).detail || "Request failed");
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.detail || `Request failed (${response.status})`);
+  }
   return response.status === 204 ? null : response.json();
 }
 
